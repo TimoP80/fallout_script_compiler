@@ -1,0 +1,30 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{B2C3D4E5-F6A7-8901-BCDE-F12345678901}</ProjectGuid>
+    <MainSource>FalloutCompiler.dpr</MainSource>
+    <Configuration>Release</Configuration>
+    <Platform>Win64</Platform>
+    <DCC_DependencyCheckOutputName>.\bin\FalloutCompiler.exe</DCC_DependencyCheckOutputName>
+    <DCC_DcuOutput>.\bin\DCU</DCC_DcuOutput>
+    <DCC_ExeOutput>.\bin</DCC_ExeOutput>
+    <DCC_UnitSearchPath>.\</DCC_UnitSearchPath>
+    <DCC_64Bit>true</DCC_64Bit>
+    <DCC_Framework>VCL</DCC_Framework>
+    <DCC_DebugInformation>false</DCC_DebugInformation>
+    <DCC_HighDPI>true</DCC_HighDPI>
+  </PropertyGroup>
+  <ItemGroup>
+    <DelphiCompile Include="FalloutCompiler.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <None Include="uBuiltins.pas" />
+    <None Include="uLexer.pas" />
+    <None Include="uAST.pas" />
+    <None Include="uParser.pas" />
+    <None Include="uBytecode.pas" />
+    <None Include="uINTWriter.pas" />
+    <None Include="uCompiler.pas" />
+    <None Include="uCompilerGUI.pas" />
+    <None Include="uCompilerGUI.dfm" />
+  </ItemGroup>
+</Project>

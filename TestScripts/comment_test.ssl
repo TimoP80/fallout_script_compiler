@@ -1,0 +1,8 @@
+// Test script
+/* Multi-line
+   comment test */
+procedure start
+begin
+  // single line comment
+  display_msg("test");
+end

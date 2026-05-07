@@ -1,0 +1,8 @@
+/* Name: test
+   Description: test
+   Created: 27.6.2008 */
+
+#define NAME SCRIPT_TEST
+
+procedure start begin
+end

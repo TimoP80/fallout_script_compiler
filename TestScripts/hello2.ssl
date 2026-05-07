@@ -1,0 +1,4 @@
+procedure start
+begin
+  display_msg("Hello Wasteland!");
+end

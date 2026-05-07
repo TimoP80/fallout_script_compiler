@@ -1,0 +1,6 @@
+/* Name: test */
+#define NAME SCRIPT_TEST
+
+// This is a comment with 27.6.2008 inside
+procedure start begin
+end

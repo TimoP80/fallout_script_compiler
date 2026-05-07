@@ -1,0 +1,14 @@
+/* Test script with variables and conditionals */
+
+procedure start begin
+  variable
+    my_var;
+
+  set_global_var(0, 100);
+
+  if (global_var(0) > 50) then begin
+    display_msg("Global var is greater than 50!");
+  end else begin
+    display_msg("Global var is 50 or less!");
+  end;
+end

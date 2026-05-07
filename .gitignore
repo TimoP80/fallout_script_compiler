@@ -1,0 +1,37 @@
+# Delphi
+__history/
+*.dcu
+*.dcp
+*.drc
+*.res
+*.local
+*.identcache
+*.tvsconfig
+*.otares
+*.stat
+
+# Binaries
+bin/
+*.exe
+*.dll
+*.bpl
+
+# IDE
+*.dsk
+*.ini
+
+# Backup
+*.bak
+*~
+.~*
+
+# Test files
+*.int
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Temporary
+*.tmp
+*.log

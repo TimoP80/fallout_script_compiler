@@ -1,0 +1,67 @@
+/*
+
+        Name:           
+        Location:       
+        Description:    
+
+           Created: 27.6.2008 9:36:02
+
+ */
+
+/* Include Files */
+
+
+//Overrides the pickup p proc.
+//#define NPC_REACTION_TYPE       REACTION_TC /* REACTION_TC REACTION_TG REACTION_C REACTION_G */
+#define NPC_REACTION_VAR        7 /* same as thief variable */
+
+/*
+#include "M:\Fallout2\scripts\HEADERS\define.h"
+#include "M:\Fallout2\scripts\HEADERS\<TownName.h>"
+*/
+
+#define NAME                    SCRIPT_TSTDLG
+
+// NOTE: This is set to 0 by default
+#define TOWN_REP_VAR            (0)
+
+/*
+#include "M:\Fallout2\scripts\HEADERS\command.h"
+#include "M:\Fallout2\scripts\HEADERS\ModReact.h"
+*/
+
+/* Helper macros */
+
+variable temp;
+
+/* Standard Script Procedures */
+procedure start;
+procedure critter_p_proc;
+procedure pickup_p_proc;
+procedure talk_p_proc;
+procedure destroy_p_proc;
+procedure look_at_p_proc;
+procedure description_p_proc;
+procedure use_skill_on_p_proc;
+procedure damage_p_proc;
+procedure map_enter_p_proc;
+procedure timed_event_p_proc;
+
+
+/* Script Specific Procedure Calls */
+procedure Node998;
+procedure Node999;
+
+procedure Skill_Check_000_Intelligence;
+
+/* Local Variables which are saved. */
+#define LVAR_Herebefore                 (4)
+#define LVAR_Hostile                    (5)
+#define LVAR_Personal_Enemy             (6)
+#define LVAR_Caught_Thief               (7)
+
+/* Local variables which do not need to be saved between map changes. */
+variable Only_Once:=0;
+
+procedure start begin
+end

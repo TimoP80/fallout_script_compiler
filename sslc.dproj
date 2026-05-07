@@ -1,0 +1,27 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <MainSource>sslc.dpr</MainSource>
+    <Configuration>Release</Configuration>
+    <Platform>Win64</Platform>
+    <DCC_DependencyCheckOutputName>.\bin\sslc.exe</DCC_DependencyCheckOutputName>
+    <DCC_DcuOutput>.\bin\DCU</DCC_DcuOutput>
+    <DCC_ExeOutput>.\bin</DCC_ExeOutput>
+    <DCC_UnitSearchPath>.\</DCC_UnitSearchPath>
+    <DCC_64Bit>true</DCC_64Bit>
+    <DCC_Framework>VCL</DCC_Framework>
+    <DCC_DebugInformation>false</DCC_DebugInformation>
+  </PropertyGroup>
+  <ItemGroup>
+    <DelphiCompile Include="sslc.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <None Include="uBuiltins.pas" />
+    <None Include="uLexer.pas" />
+    <None Include="uAST.pas" />
+    <None Include="uParser.pas" />
+    <None Include="uBytecode.pas" />
+    <None Include="uINTWriter.pas" />
+    <None Include="uCompiler.pas" />
+  </ItemGroup>
+</Project>
