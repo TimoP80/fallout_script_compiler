@@ -1,0 +1,1 @@
+#define SIMPLE_TEST 123

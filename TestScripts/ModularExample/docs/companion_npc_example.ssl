@@ -1,0 +1,75 @@
+// ============================================================
+// COMPARISON: How the same code looks before and after modularization
+//
+// This file is NOT meant to be compiled — it's a learning aid.
+// It shows the same logic expressed in both styles side by side.
+// ============================================================
+
+// ============================================================
+// BEFORE: Monolithic inline style
+// Everything lives in one file, macros scattered throughout
+// ============================================================
+
+/*
+#define NPC_NAME "Hagbard"
+#define NPC_REP_VAR GVAR_TOWN_REP_NEW_RENO
+
+// ... 400 lines later ...
+
+procedure pickup_p_proc begin
+  if (source_obj == dude_obj) then begin
+    set_global_var(GVAR_TOWN_REP_NEW_RENO,
+      global_var(GVAR_TOWN_REP_NEW_RENO) - 1);
+    hostile := 1;
+  end
+end
+
+// ... 600 lines later ...
+
+procedure combat_p_proc begin
+  if (hostile) then begin
+    hostile := 0;
+    attack_complex(dude_obj, 0, 1, 0, 0, 30000, 0, 0);
+  end
+end
+
+// ... same patterns repeated for every NPC with slight variations ...
+*/
+
+
+// ============================================================
+// AFTER: Modularized style
+// Logic organized by domain, configuration separated from behavior
+// ============================================================
+
+// /*
+//  * NPC: Hagbard N'Myron
+//  * scripts/npc_nhmyron_modular.ssl (50 lines)
+//  *
+//  * Assembled from:
+//  *   config/npc_nhmyron_defs.h   — configuration
+//  *   include/npc_headers.h       — header includes
+//  *   procedures/npc_defaults.ssl — shared behavior
+//  *   procedures/npc_combat.ssl   — combat AI
+//  *   procedures/npc_dialogue.ssl — dialogue tree
+//  *
+//  * NPC: Slink the Slave Trader
+//  * scripts/npc_slink_modular.ssl (50 lines)
+//  *
+//  * Assembled from:
+//  *   config/npc_slink_defs.h     — different configuration
+//  *   include/npc_headers.h       — same headers!
+//  *   procedures/npc_defaults.ssl — shared behavior (same!)
+//  *   procedures/npc_combat.ssl   — same combat module
+//  *   procedures/dialogue_slink.ssl — different dialogue tree
+//  *
+//  * NPC: Metzger (uses: combat, no special dialogue)
+//  * scripts/npc_metzger_modular.ssl (40 lines)
+//  *
+//  * Assembled from:
+//  *   config/npc_metzger_defs.h
+//  *   include/npc_headers.h
+//  *   procedures/npc_defaults.ssl
+//  *   procedures/npc_combat.ssl
+//  *   // No dialogue module — NPC_HAS_DIALOGUE = 0
+//  */

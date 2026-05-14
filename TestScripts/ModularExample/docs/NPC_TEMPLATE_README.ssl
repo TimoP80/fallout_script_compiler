@@ -1,0 +1,116 @@
+// ============================================================
+// NPC TEMPLATE — Copy this directory and customize
+//
+// Usage:
+//   1. Copy this directory as: scripts/npc_<name>/
+//   2. Edit config/npc_<name>.defs.h
+//   3. Edit procedures/npc_<name>_dialogue.ssl
+//   4. Edit scripts/npc_<name>.ssl (master assembly)
+//   5. Compile with: sslc scripts/npc_<name>.ssl
+// ============================================================
+
+// ============================================================
+// FILE: config/npc_<name>.defs.h
+// ============================================================
+// #ifndef NPC_<UPPER_NAME>_DEFS
+// #define NPC_<UPPER_NAME>_DEFS
+//
+// #define NPC_SCRIPT_NAME       SCRIPT_<NAME>
+// #define NPC_TOWN_REP_VAR      GVAR_TOWN_REP_<TOWN>
+//
+// #define NPC_HAS_COMBAT        1
+// #define NPC_HAS_PICKUP        1
+// #define NPC_HAS_SPATIAL       1
+// #define NPC_HAS_CRITTER       1
+// #define NPC_HAS_DESTROY       1
+// #define NPC_HAS_DAMAGE        1
+// #define NPC_HAS_MAP_ENTER     1
+// #define NPC_HAS_DIALOGUE      1
+// #define NPC_HAS_BEGGING       0
+//
+// #define REPUTATION_CHANGE_DESTROY    (1)
+// #define REPUTATION_CHANGE_PICKUP    (-1)
+// #define REPUTATION_CHANGE_DAMAGE    (-1)
+//
+// #endif
+// ============================================================
+
+// ============================================================
+// FILE: scripts/npc_<name>.ssl  (Master Assembly Script)
+// ============================================================
+
+/*
+    Name: <NPC Name>
+    Location: <Location>
+    Description: <Description>
+*/
+
+#include "config/npc_<name>_defs.h"
+#include "include/npc_headers.h"
+
+variable
+  dude_rep;
+  reaction_level;
+  temp_check;
+  exit_line;
+
+procedure start;
+#ifdef NPC_HAS_SPATIAL
+procedure spatial_p_proc;
+#endif
+#ifdef NPC_HAS_CRITTER
+procedure critter_p_proc;
+#endif
+#ifdef NPC_HAS_PICKUP
+procedure pickup_p_proc;
+#endif
+procedure talk_p_proc;
+#ifdef NPC_HAS_DESTROY
+procedure destroy_p_proc;
+#endif
+procedure look_at_p_proc;
+procedure description_p_proc;
+procedure Node001;
+procedure Node999;
+
+// --- Shared procedure implementations ---
+#include "procedures/npc_default_procedures.ssl"
+
+// --- Combat (only if NPC_HAS_COMBAT) ---
+#ifdef NPC_HAS_COMBAT
+#include "procedures/npc_combat_procedures.ssl"
+#endif
+
+// --- Dialogue (unique to this NPC) ---
+#include "procedures/npc_<name>_dialogue.ssl"
+
+// --- Master start procedure ---
+procedure start begin
+  if (script_is_running) then begin
+    DEBUG_PRINT("Cannot start, script already running");
+  end else begin
+    only_once;
+    dude_rep := global_var(NPC_TOWN_REP_VAR);
+    DEBUG_PRINT_INT("Starting NPC, rep", dude_rep);
+  end
+end
+
+#ifdef NPC_HAS_SPATIAL
+procedure spatial_p_proc begin
+  if (tile_distance_objs(self_obj, dude_obj) <= 5) then begin
+    if (local_var(7) == 0) then begin
+      set_local_var(7, 1);
+      call NODE_GREETING;
+    end
+  end
+end
+#endif
+
+#ifdef NPC_HAS_CRITTER
+procedure critter_p_proc begin
+  if (hostile) then begin
+    hostile := 0;
+    attack_complex(dude_obj, 0, 1, 0, 0, 30000, 0, 0);
+  end
+end
+#endif

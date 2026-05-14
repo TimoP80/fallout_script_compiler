@@ -1,0 +1,244 @@
+/*
+    Name: Herbert "Hagbard" N'Myron
+    Location: New Reno
+    Description: Arguably the most unpleasant individual in New Reno.
+
+    This is the MONOLITHIC version — a single 200+ line script file
+    containing all logic, inline macros, no modular decomposition.
+*/
+
+#include "..\headers\define.h"
+#define NAME                    SCRIPT_NHMYRON
+#define TOWN_REP_VAR            GVAR_TOWN_REP_NEW_RENO
+#include "..\headers\ModReact.h"
+#include "..\headers\command.h"
+#include "..\headers\NewReno.h"
+#include "..\headers\PartyBkg.H"
+
+// ===== Global Variables =====
+
+variable
+  dude_rep;
+  reaction_level;
+  temp_check;
+  exit_line;
+
+// ===== Forward Declarations =====
+
+procedure start;
+procedure spatial_p_proc;
+procedure critter_p_proc;
+procedure pickup_p_proc;
+procedure talk_p_proc;
+procedure destroy_p_proc;
+procedure look_at_p_proc;
+procedure description_p_proc;
+procedure damage_p_proc;
+procedure map_enter_p_proc;
+procedure map_update_p_proc;
+procedure timed_event_p_proc;
+procedure Node001;
+procedure Node002;
+procedure Node003;
+procedure Node100;
+procedure Node101;
+procedure Node102;
+procedure Node998;
+procedure Node999;
+
+// ===== Start Procedure =====
+
+procedure start begin
+  if (script_is_running) then begin
+    debug_msg("NHMYRON" + ": cannot start, script already running");
+  end else begin
+    // Script initialization
+    only_once;
+    critter_add_trait(self_obj, TRAIT_TRAIT, PERK_bonus_sm_Guns, 1);
+    critter_add_trait(self_obj, TRAIT_TRAIT, PERK_bonus_HtH, 1);
+  end
+end
+
+// ===== Spatial Procedure =====
+
+procedure spatial_p_proc begin
+  if (tile_distance_objs(self_obj, dude_obj) <= 5) then begin
+    if (local_var(7) == 0) then begin
+      set_local_var(7, 1);
+      call Node100;
+    end
+  end
+end
+
+// ===== Critter Procedure =====
+
+procedure critter_p_proc begin
+  if (hostile) then begin
+    hostile := 0;
+    attack_complex(dude_obj, 0, 1, 0, 0, 30000, 0, 0);
+  end
+
+  if (fixed_param > 2) then begin
+    if (tile_num(self_obj) != local_var(6)) then begin
+      if (anim_busy(self_obj) == 0) then begin
+        animate_move_obj_to_tile(self_obj,
+          tile_num_in_direction(
+            tile_num(self_obj),
+            (random(0, 5) * 2),
+            (random(3, 7))
+          ),
+        0);
+        reg_anim_func(2, self_obj);
+      end
+    end
+  end
+end
+
+// ===== Pickup Procedure =====
+
+procedure pickup_p_proc begin
+  if (source_obj == dude_obj) then begin
+    set_global_var(TOWN_REP_VAR, global_var(TOWN_REP_VAR) - 1);
+    hostile := 1;
+  end
+end
+
+// ===== Talk Procedure =====
+
+procedure talk_p_proc begin
+  start_gdialog(NAME, self_obj, 4, -1, -1);
+  gsay_start;
+  call Node001;
+  gsay_end;
+  end_dialogue;
+end
+
+// ===== Destroy Procedure =====
+
+procedure destroy_p_proc begin
+  if (source_obj == dude_obj) then begin
+    set_global_var(TOWN_REP_VAR, global_var(TOWN_REP_VAR) + 1);
+    set_global_var(558, global_var(558) + 1);
+    if (global_var(558) == 5) then begin
+      set_global_var(559, 1);
+    end
+  end
+end
+
+// ===== Look At Procedure =====
+
+procedure look_at_p_proc begin
+  script_overrides;
+  display_msg(message_str(MSG_FILE, 100));
+end
+
+// ===== Description Procedure =====
+
+procedure description_p_proc begin
+  script_overrides;
+  display_msg(message_str(MSG_FILE, 101));
+end
+
+// ===== Damage Procedure =====
+
+procedure damage_p_proc begin
+  if (source_obj == dude_obj) then begin
+    set_global_var(TOWN_REP_VAR, global_var(TOWN_REP_VAR) - 1);
+  end
+end
+
+// ===== Map Enter Procedure =====
+
+procedure map_enter_p_proc begin
+  // Only execute once per map enter
+  if (metarule(22, 0) == 0) then begin
+    if (global_var(556) > 0) then begin
+      destroy_object(self_obj);
+    end
+  end
+end
+
+// ===== Map Update Procedure =====
+
+procedure map_update_p_proc begin
+  // Idle behavior on map
+end
+
+// ===== Timed Event Procedure =====
+
+procedure timed_event_p_proc begin
+  // Handle timed events
+end
+
+// ===== Node 001: Initial Greeting =====
+
+procedure Node001 begin
+  gsay_reply(100, message_str(MSG_FILE, 102));
+  giq_option(4, NODE, 100, 101, 50);
+  giq_option(4, NODE, 101, 104, 40);
+  giq_option(5, NODE, 102, 105, 50);
+end
+
+// ===== Node 002: Insult Response =====
+
+procedure Node002 begin
+  gsay_reply(200, message_str(MSG_FILE, 200));
+  giq_option(4, NODE, 100, 106, 50);
+  giq_option(4, NODE, 101, 107, 40);
+end
+
+// ===== Node 003: Bribe Attempt =====
+
+procedure Node003 begin
+  gsay_reply(300, message_str(MSG_FILE, 300));
+  if (item_caps_total(dude_obj) >= 100) then begin
+    giq_option(0, NODE, 301, 108, 50);
+  end
+  giq_option(4, NODE, 302, 109, 40);
+end
+
+// ===== Node 100: Friendly Response =====
+
+procedure Node100 begin
+  gsay_message(400, message_str(MSG_FILE, 400), 8);
+  call Node999;
+end
+
+// ===== Node 101: Neutral Response =====
+
+procedure Node101 begin
+  gsay_message(500, message_str(MSG_FILE, 500), 5);
+  call Node999;
+end
+
+// ===== Node 102: Combat Threat =====
+
+procedure Node102 begin
+  gsay_message(600, message_str(MSG_FILE, 600), 9);
+  hostile := 1;
+  call Node999;
+end
+
+// ===== Node 103: Beg/Leave =====
+
+procedure Node103 begin
+  gsay_message(700, message_str(MSG_FILE, 700), 5);
+  call Node999;
+end
+
+// ===== Node 998: Always Combat =====
+
+procedure Node998 begin
+  hostile := 2;
+end
+
+// ===== Node 999: Exit Node =====
+
+procedure Node999 begin
+  set_global_var(TOWN_REP_VAR, dude_rep);
+end
+
+// Macros defined inline for convenience — pollutes global namespace
+#define DISTANCE_TO_PLAYER tile_distance_objs(self_obj, dude_obj)
+#define IS_PLAYER_HOSTILE hostile
+#define REPUTATION_VAR global_var(TOWN_REP_VAR)

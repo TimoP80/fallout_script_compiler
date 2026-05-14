@@ -1,0 +1,97 @@
+/*
+    Name: Herbert "Hagbard" N'Myron
+    Location: New Reno
+    Description: Arguably the most unpleasant individual in New Reno.
+
+    MODULAR VERSION — assembled from domain-specific modules.
+
+    STRUCTURE:
+    ===========
+    [1] Config     → config/npc_nhmyron_defs.h
+    [2] Headers    → include/npc_headers.h
+    [3] Variables  → inline (globals)
+    [4] Forward Decls → inline
+    [5] Defaults   → procedures/npc_default_procedures.ssl
+    [6] Combat     → procedures/npc_combat_procedures.ssl
+    [7] Dialogue   → procedures/npc_dialogue_procedures.ssl
+    [8] Masters    → inline (start, spatial only)
+
+    Total lines: ~50 (vs 200+ in monolithic version)
+    Compile target: scripts/npc_nhmyron_modular.ssl
+*/
+
+// ============================================================
+// [1] CONFIGURATION
+// ============================================================
+#include "config/npc_nhmyron_defs.h"
+
+// ============================================================
+// [2] HEADERS
+// ============================================================
+#include "include/npc_headers.h"
+
+// ============================================================
+// [3] GLOBAL VARIABLES
+// ============================================================
+variable
+  dude_rep;
+  reaction_level;
+  temp_check;
+  exit_line;
+
+// ============================================================
+// [4] FORWARD DECLARATIONS
+// ============================================================
+procedure start;
+procedure spatial_p_proc;
+procedure critter_p_proc;
+procedure talk_p_proc;
+procedure Node001;
+procedure Node999;
+
+// ============================================================
+// [5] DEFAULT PROCEDURES
+// Source: procedures/npc_default_procedures.ssl
+// Contains: look_at, description, pickup, destroy,
+//           map_enter, spatial, critter (basic), damage
+// ============================================================
+#include "procedures/npc_default_procedures.ssl"
+
+// ============================================================
+// [6] COMBAT PROCEDURES
+// Source: procedures/npc_combat_procedures.ssl
+// Contains: combat_p_proc (idle movement)
+// ============================================================
+#include "procedures/npc_combat_procedures.ssl"
+
+// ============================================================
+// [7] DIALOGUE PROCEDURES
+// Source: procedures/npc_dialogue_procedures.ssl
+// Contains: talk_p_proc, Node001, Node100, Node200,
+//           Node300, Node999
+// ============================================================
+#include "procedures/npc_dialogue_procedures.ssl"
+
+// ============================================================
+// [8] MASTER PROCEDURES (unique to this NPC)
+// ============================================================
+
+procedure start begin
+  if (script_is_running) then begin
+    DEBUG_PRINT("Cannot start, already running");
+  end else begin
+    only_once;
+    critter_add_trait(self_obj, TRAIT_TRAIT, PERK_bonus_sm_Guns, 1);
+    critter_add_trait(self_obj, TRAIT_TRAIT, PERK_bonus_HtH, 1);
+    dude_rep := global_var(TOWN_REP_VAR);
+    DEBUG_PRINT_INT("Start rep", dude_rep);
+  end
+end
+
+procedure map_update_p_proc begin
+  // Idle behavior — no special logic needed
+end
+
+procedure timed_event_p_proc begin
+  // No timed events for this NPC
+end

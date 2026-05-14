@@ -150,8 +150,9 @@ var
   Left, Right: TASTExpression;
   Op: TTokenType;
 begin
+  Result := nil;
   Left := ParseTerm;
-  while CurrentToken.TokenType in [tkEq, tkNe] do
+  while CurrentToken.TokenType in [tkEq, tkNe, tkGt, tkLt, tkLe, tkGe] do
   begin
     Op := CurrentToken.TokenType;
     Advance;
@@ -159,7 +160,8 @@ begin
     Result := TASTBinaryOp.Create(Left.Line, Left.Column, Op, Left, Right);
     Left := Result;
   end;
-  Result := Left;
+  if not Assigned(Result) then
+    Result := Left;
 end;
 
 function TParser.ParseTerm: TASTExpression;
@@ -167,6 +169,7 @@ var
   Left, Right: TASTExpression;
   Op: TTokenType;
 begin
+  Result := nil;
   Left := ParseFactor;
   while CurrentToken.TokenType in [tkPlus, tkMinus, tkOr] do
   begin
@@ -176,7 +179,8 @@ begin
     Result := TASTBinaryOp.Create(Left.Line, Left.Column, Op, Left, Right);
     Left := Result;
   end;
-  Result := Left;
+  if not Assigned(Result) then
+    Result := Left;
 end;
 
 function TParser.ParseFactor: TASTExpression;
@@ -184,6 +188,7 @@ var
   Left, Right: TASTExpression;
   Op: TTokenType;
 begin
+  Result := nil;
   Left := ParseUnary;
   while CurrentToken.TokenType in [tkMul, tkDiv, tkMod, tkAnd] do
   begin
@@ -193,7 +198,8 @@ begin
     Result := TASTBinaryOp.Create(Left.Line, Left.Column, Op, Left, Right);
     Left := Result;
   end;
-  Result := Left;
+  if not Assigned(Result) then
+    Result := Left;
 end;
 
 function TParser.ParseUnary: TASTExpression;
@@ -311,7 +317,11 @@ begin
         Expect(tkSemicolon, 'Expected ";" after break');
       end;
     tkBegin: Result := ParseBlock;
-    tkVar: Result := ParseAssignmentOrCall;
+    tkVar:
+      begin
+        AddError('Local variable declarations not supported', CurrentToken.Line, CurrentToken.Column);
+        Advance;
+      end;
     tkIdentifier: Result := ParseAssignmentOrCall;
     tkRParen, tkRBracket, tkRBrace, tkEnd, tkElse, tkEOF:
       Result := nil;
@@ -520,6 +530,18 @@ begin
         Advance;
       end;
     end
+    else if Token.TokenType = tkVar then
+    begin
+      Advance;
+      if CurrentToken.TokenType = tkIdentifier then
+      begin
+        VarDecl := TASTVarDecl.Create(CurrentToken.Line, CurrentToken.Column, CurrentToken.Text);
+        Advance;
+        if Match(tkAssign) then VarDecl.InitialValue := ParseExpression;
+        Script.GlobalVars.Add(VarDecl);
+        Expect(tkSemicolon, 'Expected ";" after var declaration');
+      end;
+    end
     else if Token.TokenType = tkProcedure then
     begin
       Advance;
@@ -549,18 +571,6 @@ begin
     else if Token.TokenType = tkEnd then
     begin
       Advance;
-    end
-    else if Token.TokenType = tkVar then
-    begin
-      Advance;
-      if CurrentToken.TokenType = tkIdentifier then
-      begin
-        VarDecl := TASTVarDecl.Create(CurrentToken.Line, CurrentToken.Column, CurrentToken.Text);
-        Advance;
-        if Match(tkAssign) then VarDecl.InitialValue := ParseExpression;
-        Script.GlobalVars.Add(VarDecl);
-        Expect(tkSemicolon, 'Expected ";" after var declaration');
-      end;
     end
     else
     begin

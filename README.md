@@ -53,6 +53,16 @@ The compiler supports C-style preprocessor directives:
 - `#include` - Include other script files (both `"file"` and `<file>` syntax)
 - `#ifdef` / `#ifndef` / `#else` / `#endif` - Conditional compilation
 
+### Preprocessor Options
+
+The preprocessor supports configuration via `TPreprocessorOptions`:
+
+- **Verbose** - Emits trace messages during processing (useful for debugging include chains and macro expansion)
+- **MaxIncludeDepth** - Maximum nesting depth (default: 64), prevents runaway recursion
+- **PreserveDirectives** - Keeps preprocessor directives as comments in output for source mapping
+
+The preprocessor also includes **include cycle detection** and **performance counters** (`ProcessedIncludeCount`, `ProcessedLineCount`, `MacroExpansionCount`).
+
 ## Building
 
 ### Requirements
@@ -85,7 +95,10 @@ sslc.exe script.ssl
 # Specify output directory
 sslc.exe -o output\ script.ssl
 
-# Verbose output
+# Add include path for #include resolution
+sslc.exe -I headers\ script.ssl
+
+# Verbose output (shows preprocessor trace)
 sslc.exe -v script.ssl
 ```
 
@@ -122,7 +135,7 @@ Source (.ssl)
 | `uParser.pas` | SSL parser producing AST |
 | `uBytecode.pas` | Bytecode generator |
 | `uINTWriter.pas` | Binary INT file writer |
-| `uPreprocessor.pas` | C-style preprocessor (`#include`, `#define`, etc.) |
+| `uPreprocessor.pas` | C-style preprocessor (`#include`, `#define`, `#ifdef`, cycle detection, macro scoping) |
 | `uCompiler.pas` | Main compiler orchestration |
 | `sslc.dpr` | CLI entry point |
 | `FalloutCompiler.dpr` | GUI entry point |
@@ -152,4 +165,10 @@ This is a functional compiler, not a mock implementation. All systems are design
 
 ## Recent Changes
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed change history.
+**v1.1.0 (2026-05-13)** — see [CHANGELOG.md](CHANGELOG.md) for full details.
+
+Key highlights:
+- **Preprocessor rewrite**: Recursive include processing with cycle detection, configurable options, and performance metrics
+- **Binary expression support**: Full arithmetic, comparison, and logical operators with correct Fallout 2 VM opcodes
+- **CLI `-I` flag**: Specify include paths for `#include` resolution
+- **Bug fixes**: Preprocessor infinite loop on nested includes, incorrect opcode constants, local variable scope issues

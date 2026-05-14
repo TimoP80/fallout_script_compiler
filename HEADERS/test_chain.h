@@ -1,0 +1,3 @@
+#define SIMPLE_MACRO 42
+
+#define ANOTHER_MACRO 99

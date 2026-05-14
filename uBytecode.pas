@@ -6,90 +6,6 @@ uses
   System.SysUtils, System.Classes, System.Generics.Collections,
   uAST, uLexer, uBuiltins;
 
-const
-  O_NOOP = $8000;
-  O_CONST = $8001;
-  O_CRITICAL_START = $8002;
-  O_CRITICAL_DONE = $8003;
-  O_JMP = $8004;
-  O_CALL = $8005;
-  O_CALL_AT = $8006;
-  O_CALL_CONDITION = $8007;
-  O_CALLSTART = $8008;
-  O_EXEC = $8009;
-  O_SPAWN = $800A;
-  O_FORK = $800B;
-  O_A_TO_D = $800C;
-  O_D_TO_A = $800D;
-  O_EXIT = $800E;
-  O_DETACH = $800F;
-  O_EXIT_PROG = $8010;
-  O_STOP_PROG = $8011;
-  O_FETCH_GLOBAL = $8012;
-  O_STORE_GLOBAL = $8013;
-  O_FETCH_EXTERNAL = $8014;
-  O_STORE_EXTERNAL = $8015;
-  O_EXPORT_VAR = $8016;
-  O_EXPORT_PROC = $8017;
-  O_SWAP = $8018;
-  O_SWAPA = $8019;
-  O_POP = $801A;
-  O_DUP = $801B;
-  O_POP_RETURN = $801C;
-  O_POP_EXIT = $801D;
-  O_POP_ADDRESS = $801E;
-  O_POP_FLAGS = $801F;
-  O_POP_FLAGS_RETURN = $8020;
-  O_POP_FLAGS_EXIT = $8021;
-  O_POP_FLAGS_RETURN_EXTERN = $8022;
-  O_POP_FLAGS_EXIT_EXTERN = $8023;
-  O_POP_FLAGS_RETURN_VAL_EXTERN = $8024;
-  O_POP_FLAGS_RETURN_VAL_EXIT = $8025;
-  O_POP_FLAGS_RETURN_VAL_EXIT_EXTERN = $8026;
-  O_CHECK_ARG_COUNT = $8027;
-  O_LOOKUP_STRING_PROC = $8028;
-  O_POP_BASE = $8029;
-  O_POP_TO_BASE = $802A;
-  O_PUSH_BASE = $802B;
-  O_SET_GLOBAL = $802C;
-  O_FETCH_PROC_ADDRESS = $802D;
-  O_DUMP = $802E;
-  O_IF = $802F;
-  O_WHILE = $8030;
-  O_STORE = $8031;
-  O_FETCH = $8032;
-  O_EQUAL = $8033;
-  O_NOT_EQUAL = $8034;
-  O_LESS_EQUAL = $8035;
-  O_GREATER_EQUAL = $8036;
-  O_LESS = $8037;
-  O_GREATER = $8038;
-  O_ADD = $8039;
-  O_SUB = $803A;
-  O_MUL = $803B;
-  O_DIV = $803C;
-  O_MOD = $803D;
-  O_AND = $803E;
-  O_OR = $803F;
-  O_BWAND = $8040;
-  O_BWOR = $8041;
-  O_BWXOR = $8042;
-  O_BWNOT = $8043;
-  O_FLOOR = $8044;
-  O_NOT = $8045;
-  O_NEGATE = $8046;
-  O_WAIT = $8047;
-  O_CANCEL = $8048;
-  O_CANCELALL = $8049;
-  O_STARTCRITICAL = $804A;
-  O_ENDCRITICAL = $804B;
-  O_END_CORE = $804C;
-  O_RET = $804D;
-
-  O_INTOP = $C001;
-  O_STRINGOP = $9000;
-  O_FLOATOP = $A000;
-
 type
   TBytecodeInstruction = record
     Opcode: Word;
@@ -217,11 +133,11 @@ begin
     FCurrentProc.AddOp(O_CONST);
     FCurrentProc.AddInt(TASTNumberLiteral(Expr).Value);
   end
-  else if Expr is TASTStringLiteral then
-  begin
-    FCurrentProc.AddOp($9000);
-    FCurrentProc.AddString(TASTStringLiteral(Expr).Value);
-  end
+   else if Expr is TASTStringLiteral then
+   begin
+     FCurrentProc.AddOp(O_STRINGOP);
+     FCurrentProc.AddString(TASTStringLiteral(Expr).Value);
+   end
   else if Expr is TASTUnaryOp then
   begin
     UnOp := TASTUnaryOp(Expr);
@@ -231,6 +147,27 @@ begin
       tkNot: FCurrentProc.AddOp(O_NOT);
     end;
   end
+   else if Expr is TASTBinaryOp then
+   begin
+     BinOp := TASTBinaryOp(Expr);
+     GenerateExpression(BinOp.Left);
+     GenerateExpression(BinOp.Right);
+     case BinOp.Op of
+       tkPlus: FCurrentProc.AddOp(O_ADD);
+       tkMinus: FCurrentProc.AddOp(O_SUB);
+       tkMul: FCurrentProc.AddOp(O_MUL);
+       tkDiv: FCurrentProc.AddOp(O_DIV);
+       tkMod: FCurrentProc.AddOp(O_MOD);
+       tkEq: FCurrentProc.AddOp(O_EQUAL);
+       tkNe: FCurrentProc.AddOp(O_NOT_EQUAL);
+       tkLt: FCurrentProc.AddOp(O_LESS);
+       tkGt: FCurrentProc.AddOp(O_GREATER);
+       tkLe: FCurrentProc.AddOp(O_LESS_EQUAL);
+       tkGe: FCurrentProc.AddOp(O_GREATER_EQUAL);
+       tkAnd: FCurrentProc.AddOp(O_AND);
+       tkOr: FCurrentProc.AddOp(O_OR);
+     end;
+   end
   else if Expr is TASTFunctionCall then
   begin
     Call := TASTFunctionCall(Expr);

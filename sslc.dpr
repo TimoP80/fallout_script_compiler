@@ -65,47 +65,53 @@ begin
       Halt(1);
     end;
 
-    InputFile := '';
-    OutputDir := '';
-    Verbose := False;
+InputFile := '';
+     OutputDir := '';
+     Verbose := False;
+     Compiler := TCompiler.Create;
 
-    i := 1;
-    while i <= ParamCount do
-    begin
-      if (ParamStr(i) = '-h') or (ParamStr(i) = '--help') then
-      begin
-        PrintUsage;
-        Halt(0);
-      end
-      else if (ParamStr(i) = '-v') or (ParamStr(i) = '--verbose') then
-      begin
-        Verbose := True;
-      end
-      else if (ParamStr(i) = '-d') or (ParamStr(i) = '--debug') then
-      begin
-        // Debug mode flag
-      end
-      else if ParamStr(i) = '-o' then
-      begin
-        Inc(i);
-        if i > ParamCount then
-        begin
-          WriteLn('Error: -o requires a directory argument');
-          Halt(1);
-        end;
-        OutputDir := ParamStr(i);
-      end
-      else if ParamStr(i) = '-I' then
-      begin
-        Inc(i);
-        // Add include path (not implemented in this version)
-      end
-      else if not ParamStr(i).StartsWith('-') then
-      begin
-        InputFile := ParamStr(i);
-      end;
-      Inc(i);
-    end;
+     i := 1;
+     while i <= ParamCount do
+     begin
+       if (ParamStr(i) = '-h') or (ParamStr(i) = '--help') then
+       begin
+         PrintUsage;
+         Halt(0);
+       end
+       else if (ParamStr(i) = '-v') or (ParamStr(i) = '--verbose') then
+       begin
+         Verbose := True;
+       end
+       else if (ParamStr(i) = '-d') or (ParamStr(i) = '--debug') then
+       begin
+         // Debug mode flag
+       end
+       else if ParamStr(i) = '-o' then
+       begin
+         Inc(i);
+         if i > ParamCount then
+         begin
+           WriteLn('Error: -o requires a directory argument');
+           Halt(1);
+         end;
+         OutputDir := ParamStr(i);
+       end
+       else if ParamStr(i) = '-I' then
+       begin
+         Inc(i);
+         if i > ParamCount then
+         begin
+           WriteLn('Error: -I requires a directory argument');
+           Halt(1);
+         end;
+         Compiler.AddIncludePath(ParamStr(i));
+       end
+       else if not ParamStr(i).StartsWith('-') then
+       begin
+         InputFile := ParamStr(i);
+       end;
+       Inc(i);
+     end;
 
     if InputFile = '' then
     begin
@@ -131,11 +137,10 @@ begin
 
     OutputFile := TPath.Combine(OutputDir, ChangeFileExt(ExtractFileName(InputFile), '.int'));
 
-    if Verbose then
-      WriteLn('Compiling: ' + InputFile);
+if Verbose then
+       WriteLn('Compiling: ' + InputFile);
 
-    Compiler := TCompiler.Create;
-    try
+     try
       Result := Compiler.CompileFile(InputFile, OutputFile);
 
       if Result.Success then

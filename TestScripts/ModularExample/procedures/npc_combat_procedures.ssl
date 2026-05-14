@@ -1,0 +1,40 @@
+// ============================================================
+// COMBAT PROCEDURES
+// Source: procedures/npc_combat_procedures.ssl
+//
+// Combat-specific behavior for NPCs.
+// Only included when NPC_HAS_COMBAT is defined.
+// ============================================================
+
+#ifdef NPC_HAS_COMBAT
+
+procedure combat_p_proc begin
+  // Idle movement while in combat
+  if (fixed_param > 2) then begin
+    if (tile_num(self_obj) != local_var(6)) then begin
+      if (anim_busy(self_obj) == 0) then begin
+        animate_move_obj_to_tile(self_obj,
+          tile_num_in_direction(
+            tile_num(self_obj),
+            (random(0, 5) * 2),
+            (random(3, 7))
+          ),
+        0);
+        reg_anim_func(2, self_obj);
+      end
+    end
+  end
+end
+
+// Optional: custom damage behavior
+#ifdef NPC_CUSTOM_DAMAGE
+procedure damage_p_proc begin
+  // Special damage handling — overrides default from npc_default_procedures
+  if (source_obj == dude_obj) then begin
+    set_global_var(NPC_TOWN_REP_VAR, global_var(NPC_TOWN_REP_VAR) - 2);
+    float_msg(self_obj, "You'll pay for that!", 8);
+  end
+end
+#endif
+
+#endif // NPC_HAS_COMBAT

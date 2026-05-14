@@ -132,7 +132,7 @@ type
     Body: TASTBlock;
     IsDefault: Boolean;
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; virtual;
   end;
 
   TASTSwitchStatement = class(TASTStatement)
@@ -387,7 +387,6 @@ destructor TASTScript.Destroy;
 var
   Proc: TASTProcedureDecl;
   VarDecl: TASTVarDecl;
-  Inc: string;
 begin
   for Proc in Procedures do
     Proc.Free;

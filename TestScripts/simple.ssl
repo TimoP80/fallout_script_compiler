@@ -1,0 +1,5 @@
+/* Simple test without variables */
+
+procedure start begin
+  display_msg("Hello from Delphi SSL");
+end

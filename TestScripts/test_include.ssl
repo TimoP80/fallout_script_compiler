@@ -1,7 +1,5 @@
-/* Test include */
-#include "test.h"
-
-#define NAME SCRIPT_TEST
+#include "headers\COMMAND.H"
 
 procedure start begin
+  display_msg("Test");
 end

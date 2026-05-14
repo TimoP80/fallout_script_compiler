@@ -1,0 +1,79 @@
+// ============================================================
+// STANDARD PROCEDURE STUBS
+// Source: procedures/npc_default_procedures.ssl
+//
+// Common procedure implementations shared across multiple NPCs.
+// Include this module in any NPC that needs standard behavior.
+// ============================================================
+
+#ifdef NPC_HAS_LOOK_AT
+procedure look_at_p_proc begin
+  script_overrides;
+  display_msg(message_str(MSG_FILE, 100));
+end
+#endif
+
+#ifdef NPC_HAS_DESCRIPTION
+procedure description_p_proc begin
+  script_overrides;
+  display_msg(message_str(MSG_FILE, 101));
+end
+#endif
+
+#ifdef NPC_HAS_PICKUP
+procedure pickup_p_proc begin
+  if (source_obj == dude_obj) then begin
+    set_global_var(NPC_TOWN_REP_VAR,
+      global_var(NPC_TOWN_REP_VAR) + REPUTATION_CHANGE_PICKUP);
+    hostile := 1;
+  end
+end
+#endif
+
+#ifdef NPC_HAS_DESTROY
+procedure destroy_p_proc begin
+  if (source_obj == dude_obj) then begin
+    set_global_var(NPC_TOWN_REP_VAR,
+      global_var(NPC_TOWN_REP_VAR) + REPUTATION_CHANGE_DESTROY);
+  end
+end
+#endif
+
+#ifdef NPC_HAS_MAP_ENTER
+procedure map_enter_p_proc begin
+  if (metarule(22, 0) == 0) then begin
+    if (global_var(556) > 0) then begin
+      destroy_object(self_obj);
+    end
+  end
+end
+#endif
+
+#ifdef NPC_HAS_SPATIAL
+procedure spatial_p_proc begin
+  if (tile_distance_objs(self_obj, dude_obj) <= 5) then begin
+    if (local_var(7) == 0) then begin
+      set_local_var(7, 1);
+      call Node001;
+    end
+  end
+end
+#endif
+
+#ifdef NPC_HAS_CRITTER
+procedure critter_p_proc begin
+  if (hostile) then begin
+    hostile := 0;
+    attack_complex(dude_obj, 0, 1, 0, 0, 30000, 0, 0);
+  end
+end
+#endif
+
+#ifdef NPC_HAS_DAMAGE
+procedure damage_p_proc begin
+  if (source_obj == dude_obj) then begin
+    set_global_var(NPC_TOWN_REP_VAR,
+      global_var(NPC_TOWN_REP_VAR) + REPUTATION_CHANGE_DAMAGE);
+  end
+end
+#endif

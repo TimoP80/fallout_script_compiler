@@ -1,0 +1,198 @@
+// ============================================================
+// ADVANCED CONDITIONAL COMPILATION PATTERNS
+// Source: docs/advanced_conditional_patterns.ssl
+//
+// This file demonstrates advanced uses of the IX Preprocessor
+// conditional compilation for complex environment configurations.
+// ============================================================
+
+// ============================================================
+// PATTERN 1: Build Target Selection
+// Switch between different game versions or mod configurations
+// ============================================================
+
+// Config file (build_config.h):
+//   #define BUILD_STANDARD    1
+//   #define BUILD_SALLOW      0
+//   #define BUILD_MOD_COMPAT  0
+
+#ifdef BUILD_STANDARD
+  #define EXP_BASE_MULTIPLIER   (1)
+  #define REPAIR_COST_DIVISOR   (2)
+  #define CRIT_CHANCE_BASE      (5)
+#endif
+
+#ifdef BUILD_SALLOW
+  #define EXP_BASE_MULTIPLIER   (2)
+  #define REPAIR_COST_DIVISOR   (1)
+  #define CRIT_CHANCE_BASE      (10)
+#endif
+
+#ifdef BUILD_MOD_COMPAT
+  #define EXP_BASE_MULTIPLIER   (1)
+  #define REPAIR_COST_DIVISOR   (3)
+  #define CRIT_CHANCE_BASE      (3)
+#endif
+
+
+// ============================================================
+// PATTERN 2: Debug Instrumentation
+// Add tracing without runtime overhead in release builds
+// ============================================================
+
+/*
+// In config/build_mode.h:
+//   #define BUILD_DEBUG      1
+//   #define BUILD_DEVELOP    0
+//   #define BUILD_RELEASE    0
+*/
+
+#ifdef BUILD_DEBUG
+  #define TRACE_ENTRY(func_name) \
+    display_msg("ENTER: " + func_name + " at time " + game_time_str)
+  #define TRACE_EXIT(func_name)  \
+    display_msg("EXIT: " + func_name)
+  #define ASSERT(cond, msg) \
+    if not(cond) then begin \
+      display_msg("ASSERTION FAILED: " + msg); \
+      display_msg("File: " + __FILE__ + " Line: " + __LINE__); \
+    end
+#else
+  #define TRACE_ENTRY(func_name)
+  #define TRACE_EXIT(func_name)
+  #define ASSERT(cond, msg)
+#endif
+
+
+// ============================================================
+// PATTERN 3: Platform-Specific Code
+// Handle platform differences (hypothetical extensions)
+// ============================================================
+
+/*
+// Configured by build system:
+//   Compiler.DefineMacro('PLATFORM_WINDOWS', '1');
+//   Compiler.DefineMacro('PLATFORM_STEAM', '1');
+*/
+
+#ifdef PLATFORM_WINDOWS
+  #define SAVE_PATH_ROOT    "C:\Fallout2\save\"
+  #define LOAD_PATH_ROOT    "C:\Fallout2\save\"
+#endif
+
+#ifdef PLATFORM_STEAM
+  #define SAVE_PATH_ROOT    "%steam_folder%\Fallout2\save\"
+  #define LOAD_PATH_ROOT    "%steam_folder%\Fallout2\save\"
+#endif
+
+
+// ============================================================
+// PATTERN 4: Progressive Disclosure (Difficulty Scaling)
+// Adjust script behavior based on difficulty setting
+// ============================================================
+
+/*
+// In config/difficulty.h:
+//   #define DIFFICULTY_EASY    1
+//   #define DIFFICULTY_NORMAL  0
+//   #define DIFFICULTY_HARD    0
+*/
+
+#ifdef DIFFICULTY_EASY
+  #define NPC_HP_MULTIPLIER            (0.75)
+  #define NPC_DAMAGE_MULTIPLIER        (0.50)
+  #define NPC_ARMOR_PENALTY            (2)
+  #define PLAYER_CRIT_BONUS            (5)
+#endif
+
+#ifdef DIFFICULTY_NORMAL
+  #define NPC_HP_MULTIPLIER            (1.0)
+  #define NPC_DAMAGE_MULTIPLIER        (1.0)
+  #define NPC_ARMOR_PENALTY            (0)
+  #define PLAYER_CRIT_BONUS            (0)
+#endif
+
+#ifdef DIFFICULTY_HARD
+  #define NPC_HP_MULTIPLIER            (1.5)
+  #define NPC_DAMAGE_MULTIPLIER        (1.5)
+  #define NPC_ARMOR_PENALTY            (-2)
+  #define PLAYER_CRIT_BONUS            (-5)
+#endif
+
+
+// ============================================================
+// PATTERN 5: Feature Flags — Compile-Time A/B Testing
+// Test different behavior without recompiling the entire script
+// ============================================================
+
+/*
+// In config/feature_flags.h:
+//   #define FEATURE_NEW_DIALOGUE    1
+//   #define FEATURE_REVIVED_CARAVAN  0
+//   #define FEATURE_IMPROVED_AI     1
+*/
+
+procedure talk_p_proc begin
+  start_gdialog(NPC_SCRIPT_NAME, self_obj, 4, -1, -1);
+  gsay_start;
+
+#ifdef FEATURE_NEW_DIALOGUE
+  // New experimental dialogue system
+  call NODE_NEW_GREETING;
+#else
+  // Original dialogue
+  call Node001;
+#endif
+
+  gsay_end;
+  end_dialogue;
+end
+
+
+// ============================================================
+// PATTERN 6: Library Header with Multiple Guard Layers
+// Complex header with internal dependencies
+// ============================================================
+
+/*
+// lib/combat_formulas.h:
+//
+// #ifndef COMBAT_FORMULAS_H
+// #define COMBAT_FORMULAS_H
+//
+// #include "lib/common_defines.h"    // Depends on common macros
+//
+// #ifndef COMBAT_FORMULAS_INTERNAL
+// #define COMBAT_FORMULAS_INTERNAL
+//
+// // Internal helper — not visible to includers
+// #define _COMBAT_DICE_ROLL(min, max)  (random(min, max))
+//
+// #endif  // COMBAT_FORMULAS_INTERNAL
+//
+// // Public API
+// #define COMBAT_HIT_CHANCE(attack, defense) \
+//   max(10, min(95, (attack) - (defense) + 50))
+//
+// #endif  // COMBAT_FORMULAS_H
+*/
+
+
+// ============================================================
+// PATTERN 7: Guarded Override
+// Allow per-script overrides of shared header values
+// ============================================================
+
+/*
+// In headers/DEFINE.H:
+//   #ifndef OVERRIDE_REPAIR_BASE
+//   #define OVERRIDE_REPAIR_BASE (10)
+//   #endif
+//
+// In config/npc_malus_defs.h (before including headers):
+//   #define OVERRIDE_REPAIR_BASE (5)    // Cheaper repair for this NPC
+//   #include "headers/DEFINE.H"
+//
+// The first #define wins because the #ifndef guard prevents
+// redefinition inside the header.
+*/

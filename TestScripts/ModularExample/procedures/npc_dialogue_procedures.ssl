@@ -1,0 +1,66 @@
+// ============================================================
+// DIALOGUE TREE: Hagbard N'Myron
+// Source: procedures/npc_dialogue_procedures.ssl
+//
+// All dialogue nodes and talk_p_proc for this NPC.
+// Only included when NPC_HAS_DIALOGUE is defined (always true for this NPC).
+// ============================================================
+
+// Node identifiers — centralized here for easy renumbering
+#define NODE_GREETING    100
+#define NODE_INSULT      200
+#define NODE_BRIBE       300
+#define NODE_EXIT        999
+
+procedure talk_p_proc begin
+  start_gdialog(NPC_SCRIPT_NAME, self_obj, 4, -1, -1);
+  gsay_start;
+  call Node001;
+  gsay_end;
+  end_dialogue;
+end
+
+// ============================================================
+// Node 001: Initial Greeting
+// ============================================================
+procedure Node001 begin
+  gsay_reply(100, message_str(MSG_FILE, 102));
+  giq_option(4, NODE, 100, NODE_INSULT, 50);   // Friendly path
+  giq_option(4, NODE, 101, 104, 40);            // Neutral path
+  giq_option(5, NODE, 102, NODE_EXIT, 50);      // Aggressive path
+end
+
+// ============================================================
+// Node 100: Friendly Response
+// ============================================================
+procedure Node100 begin
+  gsay_message(400, message_str(MSG_FILE, 400), 8);
+  call Node999;
+end
+
+// ============================================================
+// Node 200: Insult Response
+// ============================================================
+procedure Node200 begin
+  gsay_reply(200, message_str(MSG_FILE, 200));
+  giq_option(4, NODE, 100, 106, 50);
+  giq_option(4, NODE, 101, 107, 40);
+end
+
+// ============================================================
+// Node 300: Bribe Attempt
+// ============================================================
+procedure Node300 begin
+  gsay_reply(300, message_str(MSG_FILE, 300));
+  if (item_caps_total(dude_obj) >= 100) then begin
+    giq_option(0, NODE, 301, 108, 50);
+  end
+  giq_option(4, NODE, 302, 109, 40);
+end
+
+// ============================================================
+// Node 999: Exit Node
+// ============================================================
+procedure Node999 begin
+  // Reset temporary reputation for smooth exit
+end

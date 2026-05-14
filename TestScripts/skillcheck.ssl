@@ -1,11 +1,6 @@
 /* Skill check example script */
 
 procedure start begin
-  variable
-    player_skill;
-
-  player_skill := has_skill(dude_obj, 4); /* Speech is skill 4 */
-
   if (skill_check(dude_obj, 4, 0) > 0) then begin
     display_msg("You passed the speech check!");
     give_exp_points(100);
