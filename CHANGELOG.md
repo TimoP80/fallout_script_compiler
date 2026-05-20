@@ -5,7 +5,13 @@ All notable changes to the Fallout 2 SSL Compiler will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-05-13
+## [Unreleased]
+
+### Added
+- Lazarus IDE project support (`.lpi` / `.lpr`)
+  - New `FalloutCompiler.lpi` — Lazarus Project Information file with all 11 source units registered, LCL v1 VCL compatibility layer, source path and unit output path configured, and the existing `sslc_Icon.ico` embedded as the application icon
+  - New `FalloutCompiler.lpr` — Lazarus program source using `{$mode objfpc}{$H+}`, with LCL bootstrap via `Interfaces` / `Forms`, and `RequireDerivedFormResource` preserving Delphi's `{$R *.res}` behaviour
+  - No modifications were made to any existing `.pas`, `.dfm`, or `.dpr` files — the Lazarus project is a drop-in companion alongside the existing Delphi project
 
 ### Fixed
 - **Critical**: Preprocessor infinite loop when processing `#include` directives

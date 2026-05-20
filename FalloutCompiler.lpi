@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <IsDelphiProject Value="False"/>
+      <MainUnit>FalloutCompiler.lpr</MainUnit>
+      <LCLType>1</LCLType>
+      <TargetFileExtension>.exe</TargetFileExtension>
+    </General>
+    <BuildModes>
+      <Item Name="Default" Default="True">
+        <Item Name="Target" Value="1">
+          <Item Name="CommandLineParams"></Item>
+          <Item Name="TargetFilename">FalloutCompiler.exe</Item>
+        </Item>
+      </Item>
+    </BuildModes>
+    <Compiler>
+      <SearchPaths>
+        <UnitPaths Value=".\"/>
+      </SearchPaths>
+    </Compiler>
+    <PathsAndConditions>
+      <UnitOutputDirectory Value=".\bin\Lazarus"/>
+      <SrcPath>
+        <Path value=".\"/>
+      </SrcPath>
+    </PathsAndConditions>
+    <ResourcesAndImages>
+      <Other>
+        <PathItemln Name="icon" PathName="sslc_Icon.ico"/>
+      </Other>
+    </ResourcesAndImages>
+  </ProjectOptions>
+
+  <DIR>
+    <Itemln Name="DelphiToLazarus" Required="True">
+      <State Value="dir" DefaultIncluded="True" UnitType="254"/>
+    </Itemln>
+    <Itemln Name="icon" Required="True"/>
+    <Itemln Name="FalloutCompiler.lpr" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="3"/>
+    </Itemln>
+    <Itemln Name="uCompilerGUI.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0" FileType="2"/>
+    </Itemln>
+    <Itemln Name="uCompilerGUI.dfm" Required="True">
+      <State Value="form" DefaultIncluded="True" UnitType="26"/>
+    </Itemln>
+    <Itemln Name="uBuiltins.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+    <Itemln Name="uLexer.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+    <Itemln Name="uAST.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+    <Itemln Name="uParser.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+    <Itemln Name="uBytecode.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+    <Itemln Name="uINTWriter.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+    <Itemln Name="uCompiler.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+    <Itemln Name="uPreprocessor.pas" Required="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+    </Itemln>
+  </DIR>
+</CONFIG>
