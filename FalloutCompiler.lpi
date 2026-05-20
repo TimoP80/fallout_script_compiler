@@ -41,10 +41,10 @@
     </Itemln>
     <Itemln Name="icon" Required="True"/>
     <Itemln Name="FalloutCompiler.lpr" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="3"/>
+      <State Value="lpr" DefaultIncluded="True" UnitType="3"/>
     </Itemln>
-    <Itemln Name="uCompilerGUI.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0" FileType="2"/>
+    <Itemln Name="uCompilerGUI.pas" Required="True" HasForm="True">
+      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
     </Itemln>
     <Itemln Name="uCompilerGUI.dfm" Required="True">
       <State Value="form" DefaultIncluded="True" UnitType="26"/>
