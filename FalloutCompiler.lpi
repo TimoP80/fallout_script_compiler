@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <PathDelim Value="\"/>
     <General>
       <IsDelphiProject Value="False"/>
@@ -9,69 +9,102 @@
       <LCLType>1</LCLType>
       <TargetFileExtension>.exe</TargetFileExtension>
     </General>
+    <Configurations>
+      <Configurations Count="1">
+        <Item name="Default" Required="True">
+          <Item name="BuildModes" Count="1">
+            <Item name="Mode" Value="1" Index="0" />
+          </Item>
+          <Item name="ProjPathOptions" Required="False" />
+        </Item>
+      </Configurations>
+    </Configurations>
     <BuildModes>
       <Item Name="Default" Default="True">
-        <Item Name="Target" Value="1">
+        <Item Name="BuildModeValue">0</Item>
+        <BuildModeEssentials>
+          <Item Name="Target" Value="1" />
           <Item Name="CommandLineParams"></Item>
           <Item Name="TargetFilename">FalloutCompiler.exe</Item>
-        </Item>
+          <Item Name="GetScrSize">False</Item>
+          <Item Name="Optimization">True</Item>
+          <OptimizationOpts>
+            <Item Name="OptimizationSize">N</Item>
+            <Item Name="OptimizationLevel">1</Item>
+            <Item Name="X86MaxInstOpts">N</Item>
+          </OptimizationOpts>
+          <Item Name="UseDebugInfo">False</Item>
+          <DebugOpts>
+            <Item Name="TypeInfoSize">3</Item>
+            <Item Name="DebugWPUnit">N</Item>
+          </DebugOpts>
+          <Item Name="UseHeaptrc">False</Item>
+          <Item Name="ODSAnsiStrings">False</Item>
+          <Item Name="LinkSmart">False</Item>
+          <Item Name="StripSymbols">False</Item>
+          <Item Name="ExecutableInfo">False</Item>
+          <Item Name="UseValgrind">False</Item>
+          <CompilerCmdButtons>
+            <Item Name="MacroMath" Value="True" Required="True" />
+          </CompilerCmdButtons>
+        </BuildModeEssentials>
       </Item>
     </BuildModes>
     <Compiler>
       <SearchPaths>
-        <UnitPaths Value=".\"/>
+        <UnitPaths Value=".\" />
       </SearchPaths>
     </Compiler>
     <PathsAndConditions>
-      <UnitOutputDirectory Value=".\bin\Lazarus"/>
+      <UnitOutputDirectory Value=".\bin\Lazarus" />
       <SrcPath>
-        <Path value=".\"/>
+        <Path value=".\" />
       </SrcPath>
     </PathsAndConditions>
     <ResourcesAndImages>
       <Other>
-        <PathItemln Name="icon" PathName="sslc_Icon.ico"/>
+        <PathItemln Name="icon" PathName="sslc_Icon.ico" />
       </Other>
     </ResourcesAndImages>
   </ProjectOptions>
 
   <DIR>
-    <Itemln Name="DelphiToLazarus" Required="True">
-      <State Value="dir" DefaultIncluded="True" UnitType="254"/>
+    <Itemln Name="icon" Required="False" />
+    <Itemln Name="DelphiToLazarus" Required="False">
+      <State Value="dir" DefaultIncluded="True" UnitType="254" />
     </Itemln>
-    <Itemln Name="icon" Required="True"/>
-    <Itemln Name="FalloutCompiler.lpr" Required="True">
-      <State Value="lpr" DefaultIncluded="True" UnitType="2"/>
+    <Itemln Name="FalloutCompiler.lpr" Required="True" HasResources="True">
+      <State Value="lpr" DefaultIncluded="True" UnitType="2" />
     </Itemln>
     <Itemln Name="uCompilerGUI.pas" Required="True" HasForm="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uCompilerGUI.dfm" Required="True">
-      <State Value="form" DefaultIncluded="True" UnitType="26"/>
+      <State Value="form" DefaultIncluded="True" UnitType="26" />
     </Itemln>
     <Itemln Name="uBuiltins.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uLexer.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uAST.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uParser.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uBytecode.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uINTWriter.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uCompiler.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
     <Itemln Name="uPreprocessor.pas" Required="True">
-      <State Value="pas" DefaultIncluded="True" UnitType="0"/>
+      <State Value="pas" DefaultIncluded="True" UnitType="0" />
     </Itemln>
   </DIR>
 </CONFIG>
