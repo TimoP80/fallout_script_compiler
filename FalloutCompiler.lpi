@@ -41,7 +41,7 @@
     </Itemln>
     <Itemln Name="icon" Required="True"/>
     <Itemln Name="FalloutCompiler.lpr" Required="True">
-      <State Value="lpr" DefaultIncluded="True" UnitType="3"/>
+      <State Value="lpr" DefaultIncluded="True" UnitType="2"/>
     </Itemln>
     <Itemln Name="uCompilerGUI.pas" Required="True" HasForm="True">
       <State Value="pas" DefaultIncluded="True" UnitType="0"/>
