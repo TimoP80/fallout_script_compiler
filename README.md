@@ -155,6 +155,10 @@ Example scripts are in `TestScripts\`:
 - `skillcheck.ssl` - Skill check example
 - `test_include.ssl` - Include directive example
 
+## Testing Status
+
+⚠️ **Note**: This compiler has been tested primarily with simpler scripts. Complex scripts with advanced features may contain undiscovered issues. Please report any bugs you encounter.
+
 ## License
 
 MIT License
@@ -165,10 +169,15 @@ This is a functional compiler, not a mock implementation. All systems are design
 
 ## Recent Changes
 
-**v1.1.0 (2026-05-13)** — see [CHANGELOG.md](CHANGELOG.md) for full details.
+**v1.2.0 (2026-05-21)** — see [CHANGELOG.md](CHANGELOG.md) for full details.
 
 Key highlights:
-- **Preprocessor rewrite**: Recursive include processing with cycle detection, configurable options, and performance metrics
-- **Binary expression support**: Full arithmetic, comparison, and logical operators with correct Fallout 2 VM opcodes
-- **CLI `-I` flag**: Specify include paths for `#include` resolution
-- **Bug fixes**: Preprocessor infinite loop on nested includes, incorrect opcode constants, local variable scope issues
+- **Lazarus IDE support**: Added `.lpi`/`.lpr` project files for Lazarus/FPC compatibility
+- **Critical fixes**: 
+  - Unused procedure record elimination (reduces output size)
+  - INT writer header selector corrected (`$800D` format)
+  - Procedure epilogue sequence fixed
+  - Preprocessor infinite loop resolved
+  - Binary operation opcodes aligned with Fallout 2 VM spec
+- **Enhanced preprocessor**: Cycle detection, performance metrics, conditional state preservation
+- **Modular scripting support**: Improved `#include` handling and macro scoping
