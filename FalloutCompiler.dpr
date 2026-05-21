@@ -7,6 +7,8 @@ uses
 {$R *.res}
 
 begin
+  Application.Title := 'Fallout 2 SSL Compiler ' +
+    IntToStr(VER_MAJOR) + '.' + IntToStr(VER_MINOR) + '.' + IntToStr(VER_RELEASE);
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmCompilerGUI, frmCompilerGUI);

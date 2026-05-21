@@ -1,6 +1,7 @@
 program sslc;
 
 {$APPTYPE CONSOLE}
+{$I version.inc}
 
 uses
   System.SysUtils, System.Classes, System.IOUtils,
@@ -56,7 +57,8 @@ var
   Verbose: Boolean;
 begin
   try
-    WriteLn('Fallout 2 SSL Compiler v1.0');
+    WriteLn('Fallout 2 SSL Compiler',
+      '.', VER_MAJOR, '.', VER_MINOR, '.', VER_RELEASE);
     WriteLn('');
 
     if ParamCount = 0 then
