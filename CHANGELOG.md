@@ -19,11 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Generate()` now calls `ComputeReachable()` before writing any bytecode and skips any procedure whose name is absent from the reachable set — unused forward declarations are silently omitted.
 - **INT writer header selector** — `TINTWriter.Save()` wrote `$8004` (format selector = 4) at byte-offset 16 where the C sslc reference writes `$800D` (format selector = 13, `local_vars preamble`). All subsequent position fields shifted by ±3 bytes in the Delphi output relative to the C reference. Replaced with `$800D` so the preamble encoding matches the original format.
 - **INT writer procedure epilogue sequence** — `Save()` emitted `$802A` + `$8029` + `$801C` (3 trailing opcodes) per procedure, versus the C sslc's `$8029` + `$801C` (2 trailing opcodes). Removed the spurious `$802A` to match the original epilogue sequence.
-
-### Changed
-- `TBytecodeGenerator` carries a new `FReachable` field (`TDictionary<string, Boolean>`) and `ComputeReachable()` method; `Create`/`Destroy` updated to initialise and free it; `Generate` signature unchanged (backward-compatible API contract).
-
-### Fixed
 - **Critical**: Preprocessor infinite loop when processing `#include` directives
   - The original implementation used `StringReplace` to replace include lines in the entire source text
   - This caused an infinite loop when processing files with multiple includes
@@ -34,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed duplicate opcode constant definitions, now uses single source of truth
 
 ### Changed
+- `TBytecodeGenerator` carries a new `FReachable` field (`TDictionary<string, Boolean>`) and `ComputeReachable()` method; `Create`/`Destroy` updated to initialise and free it; `Generate` signature unchanged (backward-compatible API contract).
 - Refactored `TPreprocessor.ProcessFile` from `for` loop to `while` loop with manual index management
 - Rewrote `TPreprocessor.ProcessInclude` to recursively process included files instead of text replacement
 - Added proper state save/restore for conditional compilation across includes
