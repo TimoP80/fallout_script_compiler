@@ -7,10 +7,26 @@ uses
   uAST, uLexer, uBuiltins;
 
 type
-  TBytecodeInstruction = record
-    Opcode: Word;
-    Value: LongInt;
-    Str: string;
+  TBytecodeGenerator = class
+  private
+    FProcedures: TObjectList<TProcedureBytecode>;
+    FCurrentProc: TProcedureBytecode;
+    FStringTable: TList<string>;
+    FGlobalVars: TList<string>;
+    FBuiltins: TBuiltinDatabase;
+    FScriptName: string;
+    FReachable: TDictionary<string, Boolean>;
+    function  ComputeReachable(AST: TASTScript): TDictionary<string, Boolean>;
+    procedure GenerateStatement(Stmt: TASTStatement);
+    procedure GenerateExpression(Expr: TASTExpression);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Generate(AST: TASTScript; const AScriptName: string);
+    property Procedures: TObjectList<TProcedureBytecode> read FProcedures;
+    property StringTable: TList<string> read FStringTable;
+    property GlobalVars: TList<string> read FGlobalVars;
+    property Builtins: TBuiltinDatabase read FBuiltins;
   end;
 
   TProcedureBytecode = class
@@ -33,6 +49,8 @@ type
     FGlobalVars: TList<string>;
     FBuiltins: TBuiltinDatabase;
     FScriptName: string;
+    FReachable: TDictionary<string, Boolean>;
+    function  ComputeReachable(AST: TASTScript): TDictionary<string, Boolean>;
     procedure GenerateStatement(Stmt: TASTStatement);
     procedure GenerateExpression(Expr: TASTExpression);
   public
@@ -99,10 +117,12 @@ begin
   FGlobalVars := TList<string>.Create;
   FBuiltins := TBuiltinDatabase.Create;
   FBuiltins.InitializeFallout2Builtins;
+  FReachable := TDictionary<string, Boolean>.Create;
 end;
 
 destructor TBytecodeGenerator.Destroy;
 begin
+  FReachable.Free;
   FProcedures.Free;
   FStringTable.Free;
   FGlobalVars.Free;
@@ -180,6 +200,70 @@ begin
   end;
 end;
 
+function TBytecodeGenerator.ComputeReachable(AST: TASTScript): TDictionary<string, Boolean>;
+var
+  I, J: Integer;
+  ProcDecl: TASTProcedureDecl;
+  CallProc: TASTProcedureCall;
+  Stmt: TASTStatement;
+  NameMap: TDictionary<string, TASTProcedureDecl>;
+  Worklist: TStringList;
+begin
+  Result := TDictionary<string, Boolean>.Create;
+  NameMap := TDictionary<string, TASTProcedureDecl>.Create;
+  try
+    for I := 0 to AST.Procedures.Count - 1 do
+    begin
+      ProcDecl := TASTProcedureDecl(AST.Procedures[I]);
+      NameMap.AddOrSetValue(ProcDecl.Name, ProcDecl);
+    end;
+
+    Worklist := TStringList.Create;
+    try
+      // Seed with the script entry point
+      if NameMap.TryGetValue('start', ProcDecl) then
+      begin
+        Worklist.Add('start');
+        Result.AddOrSetValue('start', True);
+      end;
+
+      while Worklist.Count > 0 do
+      begin
+        ProcDecl := NameMap[Worklist[0]];
+        Worklist.Delete(0);
+        if not Assigned(ProcDecl.Body) then Continue;
+
+        for J := 0 to ProcDecl.Body.Statements.Count - 1 do
+        begin
+          Stmt := ProcDecl.Body.Statements[J];
+          if Stmt is TASTProcedureCall then
+          begin
+            CallProc := TASTProcedureCall(Stmt);
+            // 'start' is a built-in entry-point; always reachable regardless of name
+            if SameText(CallProc.Name, 'start') then
+            begin
+              if not Result.ContainsKey('start') then
+              begin
+                Worklist.Add('start');
+                Result.AddOrSetValue('start', True);
+              end;
+            end
+            else if NameMap.ContainsKey(CallProc.Name) and not Result.ContainsKey(CallProc.Name) then
+            begin
+              Worklist.Add(CallProc.Name);
+              Result.AddOrSetValue(CallProc.Name, True);
+            end;
+          end;
+        end;
+      end;
+    finally
+      Worklist.Free;
+    end;
+  finally
+    NameMap.Free;
+  end;
+end;
+
 procedure TBytecodeGenerator.GenerateStatement(Stmt: TASTStatement);
 var
   Assign: TASTAssignment;
@@ -254,26 +338,37 @@ procedure TBytecodeGenerator.Generate(AST: TASTScript; const AScriptName: string
 var
   I, J: Integer;
   Proc: TASTProcedureDecl;
+  Reachable: TDictionary<string, Boolean>;
 begin
   FScriptName := AScriptName;
-  for I := 0 to AST.Procedures.Count - 1 do
-  begin
-    Proc := TASTProcedureDecl(AST.Procedures[I]);
-    FCurrentProc := TProcedureBytecode.Create(Proc.Name);
-    FProcedures.Add(FCurrentProc);
-    FCurrentProc.NumArgs := Proc.LocalVars.Count;
-    FCurrentProc.AddOp(O_PUSH_BASE);
-    if Assigned(Proc.Body) then
+  Reachable := ComputeReachable(AST);
+  try
+    FReachable := Reachable;
+    for I := 0 to AST.Procedures.Count - 1 do
     begin
-      for J := 0 to Proc.Body.Statements.Count - 1 do
-        GenerateStatement(TASTStatement(Proc.Body.Statements[J]));
+      Proc := TASTProcedureDecl(AST.Procedures[I]);
+      // Only emit bytecode for procedures reachable from the entry point 'start'
+      if not Reachable.ContainsKey(Proc.Name) then
+        Continue;
+      FCurrentProc := TProcedureBytecode.Create(Proc.Name);
+      FProcedures.Add(FCurrentProc);
+      FCurrentProc.NumArgs := Proc.LocalVars.Count;
+      FCurrentProc.AddOp(O_PUSH_BASE);
+      if Assigned(Proc.Body) then
+      begin
+        for J := 0 to Proc.Body.Statements.Count - 1 do
+          GenerateStatement(TASTStatement(Proc.Body.Statements[J]));
+      end;
+      FCurrentProc.AddOp(O_POP_TO_BASE);
+      FCurrentProc.AddOp(O_POP_BASE);
+      FCurrentProc.AddOp(O_POP_RETURN);
     end;
-    FCurrentProc.AddOp(O_POP_TO_BASE);
-    FCurrentProc.AddOp(O_POP_BASE);
-    FCurrentProc.AddOp(O_POP_RETURN);
+    for I := 0 to AST.GlobalVars.Count - 1 do
+      FGlobalVars.Add(TASTVarDecl(AST.GlobalVars[I]).Name);
+  finally
+    FReachable := nil;
+    Reachable.Free;
   end;
-  for I := 0 to AST.GlobalVars.Count - 1 do
-    FGlobalVars.Add(TASTVarDecl(AST.GlobalVars[I]).Name);
 end;
 
 end.

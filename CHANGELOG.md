@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No modifications were made to any existing `.pas`, `.dfm`, or `.dpr` files — the Lazarus project is a drop-in companion alongside the existing Delphi project
 
 ### Fixed
+- **Unused procedure record** — `TBytecodeGenerator.Generate()` emitted a bytecode record for every procedure declared in the script, including those never called anywhere. For a script like `variables.ssl` (which declares `talk_p_proc` but never invokes it) this added exactly one 28-byte procedure record, inflating the output by 28 bytes vs the C sslc reference output.
+  - `ComputeReachable()` introduced: iterative worklist-based call-graph walk starting from the `start` entry-point; each body is scanned for `TASTProcedureCall` nodes to discover directly-called procedures.
+  - `Generate()` now calls `ComputeReachable()` before writing any bytecode and skips any procedure whose name is absent from the reachable set — unused forward declarations are silently omitted.
+- **INT writer header selector** — `TINTWriter.Save()` wrote `$8004` (format selector = 4) at byte-offset 16 where the C sslc reference writes `$800D` (format selector = 13, `local_vars preamble`). All subsequent position fields shifted by ±3 bytes in the Delphi output relative to the C reference. Replaced with `$800D` so the preamble encoding matches the original format.
+- **INT writer procedure epilogue sequence** — `Save()` emitted `$802A` + `$8029` + `$801C` (3 trailing opcodes) per procedure, versus the C sslc's `$8029` + `$801C` (2 trailing opcodes). Removed the spurious `$802A` to match the original epilogue sequence.
+
+### Changed
+- `TBytecodeGenerator` carries a new `FReachable` field (`TDictionary<string, Boolean>`) and `ComputeReachable()` method; `Create`/`Destroy` updated to initialise and free it; `Generate` signature unchanged (backward-compatible API contract).
+
+### Fixed
 - **Critical**: Preprocessor infinite loop when processing `#include` directives
   - The original implementation used `StringReplace` to replace include lines in the entire source text
   - This caused an infinite loop when processing files with multiple includes

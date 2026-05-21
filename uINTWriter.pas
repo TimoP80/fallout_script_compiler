@@ -75,7 +75,7 @@ begin
     WriteIntToStream(Stream, 18);
     WriteOpToStream(Stream, $800D);
     WriteIntToStream(Stream, 0);
-    WriteOpToStream(Stream, $8004);
+    WriteOpToStream(Stream, $800D);
     WriteOpToStream(Stream, $8010);
     WriteOpToStream(Stream, $801A);
     WriteOpToStream(Stream, $8020);
@@ -135,7 +135,6 @@ begin
         else if Instr.Opcode = $9000 then
           WriteLongToStream(Stream, Cardinal(NameOffsets[Instr.Str]));
       end;
-      WriteOpToStream(Stream, $802A);
       WriteOpToStream(Stream, $8029);
       WriteOpToStream(Stream, $801C);
       Pad := Stream.Position mod 4;
