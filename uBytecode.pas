@@ -7,28 +7,19 @@ uses
   uAST, uLexer, uBuiltins;
 
 type
-  TBytecodeGenerator = class
-  private
-    FProcedures: TObjectList<TProcedureBytecode>;
-    FCurrentProc: TProcedureBytecode;
-    FStringTable: TList<string>;
-    FGlobalVars: TList<string>;
-    FBuiltins: TBuiltinDatabase;
-    FScriptName: string;
-    FReachable: TDictionary<string, Boolean>;
-    function  ComputeReachable(AST: TASTScript): TDictionary<string, Boolean>;
-    procedure GenerateStatement(Stmt: TASTStatement);
-    procedure GenerateExpression(Expr: TASTExpression);
-  public
-    constructor Create;
-    destructor Destroy; override;
-    procedure Generate(AST: TASTScript; const AScriptName: string);
-    property Procedures: TObjectList<TProcedureBytecode> read FProcedures;
-    property StringTable: TList<string> read FStringTable;
-    property GlobalVars: TList<string> read FGlobalVars;
-    property Builtins: TBuiltinDatabase read FBuiltins;
+
+  // ---------------------------------------------------------------------------
+  // Bytecode instruction record
+  // ---------------------------------------------------------------------------
+  TBytecodeInstruction = record
+    Opcode: Word;
+    Value: LongInt;
+    Str: string;
   end;
 
+  // ---------------------------------------------------------------------------
+  // Per-procedure bytecode container
+  // ---------------------------------------------------------------------------
   TProcedureBytecode = class
   public
     Name: string;
@@ -41,6 +32,9 @@ type
     procedure AddString(const Value: string);
   end;
 
+  // ---------------------------------------------------------------------------
+  // Top-level bytecode generator
+  // ---------------------------------------------------------------------------
   TBytecodeGenerator = class
   private
     FProcedures: TObjectList<TProcedureBytecode>;
@@ -64,6 +58,10 @@ type
   end;
 
 implementation
+
+// ============================================================
+// TProcedureBytecode
+// ============================================================
 
 constructor TProcedureBytecode.Create(const AName: string);
 begin
@@ -109,6 +107,10 @@ begin
   Instructions.Add(Instr);
 end;
 
+// ============================================================
+// TBytecodeGenerator
+// ============================================================
+
 constructor TBytecodeGenerator.Create;
 begin
   inherited;
@@ -130,6 +132,9 @@ begin
   inherited;
 end;
 
+// ---------------------------------------------------------------------------
+// Helper — look up a builtin function name in the database, return -1 on miss
+// ---------------------------------------------------------------------------
 function FindBuiltinID(const Name: string; Builtins: TBuiltinDatabase): Integer;
 var
   Func: TBuiltinFunction;
@@ -142,6 +147,9 @@ begin
   end;
 end;
 
+// ---------------------------------------------------------------------------
+// GenerateExpression — emits bytecode for an expression node
+// ---------------------------------------------------------------------------
 procedure TBytecodeGenerator.GenerateExpression(Expr: TASTExpression);
 var
   BinOp: TASTBinaryOp;
@@ -164,7 +172,7 @@ begin
     GenerateExpression(UnOp.Operand);
     case UnOp.Op of
       tkMinus: FCurrentProc.AddOp(O_NEGATE);
-      tkNot: FCurrentProc.AddOp(O_NOT);
+      tkNot:   FCurrentProc.AddOp(O_NOT);
     end;
   end
    else if Expr is TASTBinaryOp then
@@ -185,7 +193,7 @@ begin
        tkLe: FCurrentProc.AddOp(O_LESS_EQUAL);
        tkGe: FCurrentProc.AddOp(O_GREATER_EQUAL);
        tkAnd: FCurrentProc.AddOp(O_AND);
-       tkOr: FCurrentProc.AddOp(O_OR);
+       tkOr:  FCurrentProc.AddOp(O_OR);
      end;
    end
   else if Expr is TASTFunctionCall then
@@ -200,6 +208,11 @@ begin
   end;
 end;
 
+// ---------------------------------------------------------------------------
+// ComputeReachable — iterative worklist-based call-graph walk
+// Seeds with the script entry-point 'start' and follows TASTProcedureCall
+// edges. Returns a dictionary where every key is a reachable procedure name.
+// ---------------------------------------------------------------------------
 function TBytecodeGenerator.ComputeReachable(AST: TASTScript): TDictionary<string, Boolean>;
 var
   I, J: Integer;
@@ -212,6 +225,7 @@ begin
   Result := TDictionary<string, Boolean>.Create;
   NameMap := TDictionary<string, TASTProcedureDecl>.Create;
   try
+    // Build name → declaration map
     for I := 0 to AST.Procedures.Count - 1 do
     begin
       ProcDecl := TASTProcedureDecl(AST.Procedures[I]);
@@ -239,7 +253,7 @@ begin
           if Stmt is TASTProcedureCall then
           begin
             CallProc := TASTProcedureCall(Stmt);
-            // 'start' is a built-in entry-point; always reachable regardless of name
+            // 'start' is a built-in entry-point; always reachable
             if SameText(CallProc.Name, 'start') then
             begin
               if not Result.ContainsKey('start') then
@@ -264,6 +278,9 @@ begin
   end;
 end;
 
+// ---------------------------------------------------------------------------
+// GenerateStatement — emits bytecode for a single statement node
+// ---------------------------------------------------------------------------
 procedure TBytecodeGenerator.GenerateStatement(Stmt: TASTStatement);
 var
   Assign: TASTAssignment;
@@ -334,6 +351,10 @@ begin
   end;
 end;
 
+// ---------------------------------------------------------------------------
+// Generate — entry point.  Computes reachable set then emits bytecode only
+// for procedures reachable from the 'start' entry point.
+// ---------------------------------------------------------------------------
 procedure TBytecodeGenerator.Generate(AST: TASTScript; const AScriptName: string);
 var
   I, J: Integer;
