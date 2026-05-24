@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated project files for improved compatibility.
 ### Added
 - Additional test scripts for verification.
+- FMF to SSL conversion functionality (.fmf file support)
 
 ## [1.2.0] - 2026-05-21
 
