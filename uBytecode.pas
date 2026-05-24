@@ -161,11 +161,16 @@ begin
     FCurrentProc.AddOp(O_CONST);
     FCurrentProc.AddInt(TASTNumberLiteral(Expr).Value);
   end
-   else if Expr is TASTStringLiteral then
-   begin
-     FCurrentProc.AddOp(O_STRINGOP);
-     FCurrentProc.AddString(TASTStringLiteral(Expr).Value);
-   end
+    else if Expr is TASTStringLiteral then
+    begin
+      // Add string to global string table if not already present
+      var StringLiteral := TASTStringLiteral(Expr).Value;
+      if FStringTable.IndexOf(StringLiteral) < 0 then
+        FStringTable.Add(StringLiteral);
+      
+      FCurrentProc.AddOp(O_STRINGOP);
+      FCurrentProc.AddString(StringLiteral);
+    end
   else if Expr is TASTUnaryOp then
   begin
     UnOp := TASTUnaryOp(Expr);

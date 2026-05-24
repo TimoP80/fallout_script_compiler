@@ -100,14 +100,15 @@ begin
       WriteLongToStream(Stream, Cardinal(AProcedures[i].NumArgs));
     end;
 
-    for i := 0 to AStringTable.Count - 1 do
-    begin
-      NameOffsets.AddOrSetValue(AStringTable[i], Integer(Stream.Position));
-      Stream.WriteBuffer(PAnsiChar(AnsiString(AStringTable[i]))^, Length(AnsiString(AStringTable[i])));
-      WritePadByte(Stream);
-      while (Stream.Position mod 4) > 0 do
-        WritePadByte(Stream);
-    end;
+     WriteLongToStream(Stream, AStringTable.Count);
+     for i := 0 to AStringTable.Count - 1 do
+     begin
+       NameOffsets.AddOrSetValue(AStringTable[i], Integer(Stream.Position));
+       Stream.WriteBuffer(PAnsiChar(AnsiString(AStringTable[i]))^, Length(AnsiString(AStringTable[i])));
+       WritePadByte(Stream);
+       while (Stream.Position mod 4) > 0 do
+         WritePadByte(Stream);
+     end;
     for i := 0 to AProcedures.Count - 1 do
     begin
       NameOffsets.AddOrSetValue(AProcedures[i].Name, Integer(Stream.Position));

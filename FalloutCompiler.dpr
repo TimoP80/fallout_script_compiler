@@ -1,10 +1,11 @@
 program FalloutCompiler;
 
 uses
-  Vcl.Forms,
+  Vcl.Forms, System.SysUtils,
   uCompilerGUI in 'uCompilerGUI.pas' {frmCompilerGUI};
 
 {$R *.res}
+{$I version.inc}
 
 begin
   Application.Title := 'Fallout 2 SSL Compiler ' +

@@ -80,7 +80,7 @@ end;
 
 procedure TfrmCompilerGUI.mnuOpenClick(Sender: TObject);
 begin
-  openDialog.Filter := 'SSL Files (*.ssl)|*.ssl|All Files (*.*)|*.*';
+  openDialog.Filter := 'SSL Files (*.ssl)|*.ssl|FMF Files (*.fmf)|*.fmf|All Files (*.*)|*.*';
   if openDialog.Execute then
   begin
     FCurrentFile := openDialog.FileName;
@@ -93,7 +93,7 @@ procedure TfrmCompilerGUI.btnSaveClick(Sender: TObject);
 begin
   if FCurrentFile = '' then
   begin
-    saveDialog.Filter := 'SSL Files (*.ssl)|*.ssl';
+    saveDialog.Filter := 'SSL Files (*.ssl)|*.ssl|FMF Files (*.fmf)|*.fmf|All Files (*.*)|*.*';
     if saveDialog.Execute then
       FCurrentFile := saveDialog.FileName;
   end;

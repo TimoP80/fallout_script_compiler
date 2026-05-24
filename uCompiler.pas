@@ -5,7 +5,8 @@ interface
 uses
   System.SysUtils, System.Classes, System.Generics.Collections,
   System.IOUtils,
-  uLexer, uParser, uAST, uBytecode, uINTWriter, uBuiltins, uPreprocessor;
+  uLexer, uParser, uAST, uBytecode, uINTWriter, uBuiltins, uPreprocessor,
+  uFMFConverter;
 
 type
   TCompileResult = record
@@ -79,6 +80,7 @@ function TCompiler.CompileFile(const SourceFile, OutputFile: string): TCompileRe
 var
   Source: string;
   BasePath: string;
+  Ext: string;
 begin
   Result.Success := False;
   Result.ErrorCount := 0;
@@ -90,6 +92,13 @@ begin
 
   try
     Source := LoadFile(SourceFile);
+    Ext := LowerCase(ExtractFileExt(SourceFile));
+    if Ext = '.fmf' then
+    begin
+      Source := FMFToSSL(Source, ChangeFileExt(ExtractFileName(SourceFile), ''));
+      // Debug output
+      TFile.WriteAllText(ChangeFileExt(SourceFile, '.debug.ssl'), Source, TEncoding.UTF8);
+    end;
     BasePath := ExtractFilePath(SourceFile);
     FPreprocessor.AddIncludePath(BasePath);
     Source := FPreprocessor.Process(Source, BasePath);
