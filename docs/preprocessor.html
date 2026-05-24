@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IX Preprocessor: Comprehensive Technical Guide</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>IX Preprocessor: Comprehensive Technical Guide</h1>
+        <p>Detailed documentation of the Fallout 2 SSL Compiler's preprocessor system</p>
+    </header>
+    <div id="content">
+        <!-- Markdown content will be loaded here -->
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Load the markdown file and convert it to HTML
+        fetch('IX_PREPROCESSOR_GUIDE.md')
+            .then(response => response.text())
+            .then(markdown => {
+                document.getElementById('content').innerHTML = marked.parse(markdown);
+            })
+            .catch(error => {
+                console.error('Error loading markdown:', error);
+                document.getElementById('content').innerHTML = '<p>Error loading the preprocessor guide. Please check the console for details.</p>';
+            });
+    </script>
+</body>
+</html>

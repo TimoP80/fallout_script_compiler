@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fallout 2 SSL Compiler Documentation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Fallout 2 SSL Compiler</h1>
+        <p>A modern reimplementation of the Fallout 2 SSL compiler in Delphi/FreePascal</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#changelog">Changelog</a></li>
+            <li><a href="#preprocessor-guide">Preprocessor Guide</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>The Fallout 2 SSL Compiler is a tool for compiling Fallout 2 Scripting Language (SSL) source code into binary INT files that can be used by the Fallout 2 game engine.</p>
+            <p>This repository contains a modern reimplementation of the original compiler, featuring:</p>
+            <ul>
+                <li>Full SSL language support</li>
+                <li>Command-line interface (sslc.exe)</li>
+                <li>VCL-based GUI frontend (FalloutCompiler.exe)</li>
+                <li>Lazarus IDE project compatibility</li>
+                <li>Comprehensive test suite</li>
+            </ul>
+        </section>
+        <section id="changelog">
+            <h2>Changelog</h2>
+            <div class="changelog">
+                <h3>[1.2.1] - 2026-05-24</h3>
+                <ul>
+                    <li><strong>Fixed:</strong> Various bug fixes in the compiler and GUI components.</li>
+                    <li><strong>Changed:</strong> Updated project files for improved compatibility.</li>
+                    <li><strong>Added:</strong> Additional test scripts for verification.</li>
+                    <li><strong>Added:</strong> FMF to SSL conversion functionality (.fmf file support)</li>
+                </ul>
+                <h3>[1.2.0] - 2026-05-21</h3>
+                <ul>
+                    <li><strong>Added:</strong> Lazarus IDE project support (.lpi/.lpr)</li>
+                    <li><strong>Fixed:</strong> Unused procedure record optimization</li>
+                    <li><strong>Fixed:</strong> INT writer header selector</li>
+                    <li><strong>Fixed:</strong> INT writer procedure epilogue sequence</li>
+                    <li><strong>Fixed:</strong> Critical preprocessor infinite loop</li>
+                    <li><strong>Fixed:</strong> Incorrect binary operation opcodes</li>
+                    <li><strong>Changed:</strong> Updated TBytecodeGenerator with reachability analysis</li>
+                    <li><strong>Changed:</strong> Refactored preprocessor for recursive include handling</li>
+                    <li><strong>Added:</strong> Full binary operation support in expressions</li>
+                    <li><strong>Added:</strong> Preprocessor configuration options</li>
+                    <li><strong>Added:</strong> Include cycle detection</li>
+                    <li><strong>Added:</strong> Performance counters</li>
+                    <li><strong>Added:</strong> Comprehensive preprocessor guide</li>
+                    <li><strong>Added:</strong> Modular example suite</li>
+                    <li><strong>Added:</strong> New test script: simple.ssl</li>
+                </ul>
+                <h3>[1.0.0] - 2026-05-07</h3>
+                <ul>
+                    <li><strong>Added:</strong> Initial release</li>
+                    <li><strong>Added:</strong> Complete SSL parser with lexer, parser, AST, and bytecode generator</li>
+                    <li><strong>Added:</strong> Support for all Fallout 2 scripting constructs</li>
+                    <li><strong>Added:</strong> CLI compiler (sslc.exe)</li>
+                    <li><strong>Added:</strong> VCL GUI frontend (FalloutCompiler.exe)</li>
+                    <li><strong>Added:</strong> Built-in function database (100+ functions)</li>
+                    <li><strong>Added:</strong> Binary INT file writer</li>
+                    <li><strong>Added:</strong> Test scripts and examples</li>
+                </ul>
+            </div>
+        </section>
+        <section id="preprocessor-guide">
+            <h2>Preprocessor Guide</h2>
+            <p>See the <a href="IX_PREPROCESSOR_GUIDE.md">detailed preprocessor guide</a> for information on:</p>
+            <ul>
+                <li>Modular scripting patterns</li>
+                <li>Include guards and macro scoping</li>
+                <li>Conditional compilation directives</li>
+                <li>Performance optimization techniques</li>
+                <li>Cycle detection and depth limits</li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Fallout 2 SSL Compiler Project</p>
+    </footer>
+</body>
+</html>
