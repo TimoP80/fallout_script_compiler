@@ -1,0 +1,10 @@
+procedure test begin
+  switch (local_var(0)) begin
+    case 0:
+      display_msg("zero");
+    case 1:
+      display_msg("one");
+    default:
+      display_msg("default");
+  end;
+end.

@@ -340,18 +340,22 @@ var
 begin
   Block := TASTBlock.Create(CurrentToken.Line, CurrentToken.Column);
   Expect(tkBegin, 'Expected "begin"');
-  while not (CurrentToken.TokenType in [tkEnd, tkEOF]) do
+  while not (CurrentToken.TokenType in [tkEnd, tkElse, tkEOF]) do
   begin
     if CurrentToken.TokenType = tkEnd then Break;
     Stmt := ParseStatement;
     if Assigned(Stmt) then Block.Statements.Add(Stmt);
     if CurrentToken.TokenType = tkSemicolon then Advance;
   end;
-Expect(tkEnd, 'Expected "end"');
+  Expect(tkEnd, 'Expected "end"');
+  // Consume semicolon after "end" for "begin ... end;" patterns
+  if CurrentToken.TokenType = tkSemicolon then Advance;
   Result := Block;
 end;
 
 function TParser.ParseIfStatement: TASTIfStatement;
+var
+  Stmt: TASTStatement;
 begin
   Result := TASTIfStatement.Create(CurrentToken.Line, CurrentToken.Column);
   Advance; // consume 'if'
@@ -363,18 +367,41 @@ begin
   if CurrentToken.TokenType = tkBegin then
     Result.ThenBlock := ParseBlock
   else
+  begin
     Result.ThenBlock := TASTBlock.Create(CurrentToken.Line, CurrentToken.Column);
+    // Parse the single statement after 'then' (not wrapped in begin...end)
+    if not (CurrentToken.TokenType in [tkElse, tkEnd, tkSemicolon, tkEOF]) then
+    begin
+      Stmt := ParseStatement;
+      if Assigned(Stmt) then
+        Result.ThenBlock.Statements.Add(Stmt);
+    end;
+  end;
+
+  // Consume any semicolons that appear before 'else'
+  if CurrentToken.TokenType = tkSemicolon then Advance;
 
   if Match(tkElse) then
   begin
     if CurrentToken.TokenType = tkBegin then
       Result.ElseBlock := ParseBlock
     else
+    begin
       Result.ElseBlock := TASTBlock.Create(CurrentToken.Line, CurrentToken.Column);
+      // Parse the single statement after 'else' (not wrapped in begin...end)
+      if not (CurrentToken.TokenType in [tkEnd, tkSemicolon, tkEOF]) then
+      begin
+        Stmt := ParseStatement;
+        if Assigned(Stmt) then
+          Result.ElseBlock.Statements.Add(Stmt);
+      end;
+    end;
   end;
 end;
 
 function TParser.ParseWhileStatement: TASTWhileStatement;
+var
+  Stmt: TASTStatement;
 begin
   Result := TASTWhileStatement.Create(CurrentToken.Line, CurrentToken.Column);
   Advance; // consume 'while'
@@ -386,10 +413,21 @@ begin
   if CurrentToken.TokenType = tkBegin then
     Result.Body := ParseBlock
   else
+  begin
     Result.Body := TASTBlock.Create(CurrentToken.Line, CurrentToken.Column);
+    // Parse the single statement after the while condition (not wrapped in begin...end)
+    if not (CurrentToken.TokenType in [tkEnd, tkSemicolon, tkEOF]) then
+    begin
+      Stmt := ParseStatement;
+      if Assigned(Stmt) then
+        Result.Body.Statements.Add(Stmt);
+    end;
+  end;
 end;
 
 function TParser.ParseForStatement: TASTForStatement;
+var
+  Stmt: TASTStatement;
 begin
   Result := TASTForStatement.Create(CurrentToken.Line, CurrentToken.Column);
   Advance; // consume 'for'
@@ -411,12 +449,22 @@ begin
   if CurrentToken.TokenType = tkBegin then
     Result.Body := ParseBlock
   else
+  begin
     Result.Body := TASTBlock.Create(CurrentToken.Line, CurrentToken.Column);
+    // Parse the single statement after the for loop (not wrapped in begin...end)
+    if not (CurrentToken.TokenType in [tkEnd, tkSemicolon, tkEOF]) then
+    begin
+      Stmt := ParseStatement;
+      if Assigned(Stmt) then
+        Result.Body.Statements.Add(Stmt);
+    end;
+  end;
 end;
 
 function TParser.ParseSwitchStatement: TASTSwitchStatement;
 var
   CaseItem: TASTSwitchCase;
+  Stmt: TASTStatement;
 begin
   Result := TASTSwitchStatement.Create(CurrentToken.Line, CurrentToken.Column);
   Advance; // consume 'switch'
@@ -441,7 +489,9 @@ begin
 
     while not (CurrentToken.TokenType in [tkCase, tkDefault, tkEnd]) do
     begin
-      CaseItem.Body.Statements.Add(ParseStatement);
+      Stmt := ParseStatement;
+      if Assigned(Stmt) then
+        CaseItem.Body.Statements.Add(Stmt);
       if CurrentToken.TokenType = tkSemicolon then
         Advance;
     end;

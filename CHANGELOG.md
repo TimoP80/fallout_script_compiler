@@ -5,14 +5,46 @@ All notable changes to the Fallout 2 SSL Compiler will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.1] - 2026-05-24
+## [1.3.0] - 2026-06-09
 ### Fixed
-- Various bug fixes in the compiler and GUI components.
+- **Critical**: Parser infinite loop when `else` keyword appeared in block context — `ParseBlock` would loop forever because `ParseStatement` returned `nil` for `tkElse` but the token was never consumed.
+- **Critical**: `TASTSwitchCase.Body` was never allocated (null pointer) — constructor only set `IsDefault := False`, causing access violation when any switch case was parsed.
+- **ParseIfStatement** — Single-statement bodies after `then`/`else` were silently ignored (empty `TASTBlock` created instead of parsing the actual statement). Statements leaked into the parent block, and `else` was left unprocessed.
+- **ParseWhileStatement** — Single-statement bodies after the while condition were ignored, same pattern as ParseIfStatement.
+- **ParseForStatement** — Single-statement bodies after the for loop were ignored, same pattern.
+- **ParseSwitchStatement** — `nil` results from `ParseStatement` inside case bodies were blindly added to the statement list, risking crashes in downstream consumers.
+- **Lexer** — Unknown preprocessor directives (`#define`, `#ifdef`, `#ifndef`, `#else`, `#endif`, `#undef`) generated spurious errors when they reached the lexer (via `CompileString`), instead of being silently skipped.
+- **Bytecode ExpressionStatement** — Incorrectly emitted `O_POP_TO_BASE`, `O_POP_BASE`, `O_POP_RETURN` (procedure epilogue opcodes) for every expression statement, corrupting the bytecode stack.
+
 ### Changed
-- Updated project files for improved compatibility.
+- **uParser.pas**:
+  - `ParseBlock` — Added `tkElse` to while-loop exit condition; added semicolon consumption after `Expect(tkEnd)` for `begin..end;` patterns.
+  - `ParseIfStatement` — Now calls `ParseStatement` for single-statement then/else bodies with guard conditions against block boundary tokens.
+  - `ParseWhileStatement` — Same single-statement body fix.
+  - `ParseForStatement` — Same single-statement body fix.
+  - `ParseSwitchStatement` — Now guards against nil from `ParseStatement` before adding to case body.
+- **uAST.pas**:
+  - `TASTSwitchCase.Body` is now initialized to `TASTBlock.Create(0, 0)` in the constructor.
+  - Constructor calls `inherited Create`; destructor changed from `virtual` to `override` and calls `inherited`.
+- **uBytecode.pas**:
+  - `GenerateStatement` for `TASTExpressionStatement` now emits `O_POP` to clean the stack instead of spurious procedure epilogue.
+- **uLexer.pas**:
+  - Unknown `#` directives are now silently skipped (rest-of-line consumed) instead of generating errors.
+- **sslc.dpr**:
+  - Moved `{$I version.inc}` after the `uses` clause for Delphi compatibility (const declarations can't precede uses).
+  - Added conditional compilation guards for the `Windows` unit.
+
 ### Added
-- Additional test scripts for verification.
-- FMF to SSL conversion functionality (.fmf file support)
+- **Switch test scripts** — 8 new edge-case test scripts in `TestScripts/`:
+  - `switch_basic.ssl` — Basic switch with case, default, break
+  - `switch_multi_case.ssl` — 4 separate cases with different branches
+  - `switch_fallthrough.ssl` — Shared case body (`case 0: case 1:`)
+  - `switch_no_breaks.ssl` — Full fall-through (no break statements)
+  - `switch_only_default.ssl` — Default-only switch
+  - `switch_multi_stmt.ssl` — Multiple statements per case without begin/end
+  - `switch_nested_if.ssl` — Nested if-else inside a case
+  - `switch_with_start.ssl` — Switch called from a `start` procedure
+- **Programmatic test harness** (`test_programmatic.dpr`) — 40 tests across 8 categories covering the full compiler pipeline (lexer, parser, bytecode gen) using `TCompiler.CompileString` against inline SSL sources.
 
 ## [1.2.0] - 2026-05-21
 

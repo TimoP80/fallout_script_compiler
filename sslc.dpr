@@ -1,11 +1,15 @@
 program sslc;
 
 {$APPTYPE CONSOLE}
-{$I version.inc}
 
 uses
-  Windows, System.SysUtils, System.Classes, System.IOUtils,
+  {$IFDEF MSWINDOWS}
+  Windows,
+  {$ENDIF}
+  SysUtils, Classes,
   uCompiler, uLexer, uParser, uAST, uBytecode, uINTWriter, uBuiltins, uFMFConverter;
+
+{$I version.inc}
 
 procedure PrintUsage;
 begin

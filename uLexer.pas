@@ -394,7 +394,14 @@ begin
           if LowerCase(Ident) = 'include' then
             FTokens.Add(DoCreateToken(tkInclude, '#include', StartLine, StartCol))
           else
-            AddError('Unknown preprocessor directive: #' + Ident);
+          begin
+            // All other preprocessor directives (#define, #undef, #ifdef, #ifndef,
+            // #else, #endif, #if) are handled by the TPreprocessor, which strips
+            // them before lexing. If they reach the lexer (e.g. via CompileString),
+            // skip the rest of the line to avoid errors.
+            while not IsAtEnd and (PeekChar <> #10) and (PeekChar <> #13) do
+              AdvanceChar;
+          end;
         end;
     else
       AddError('Unexpected character: ' + PeekChar);

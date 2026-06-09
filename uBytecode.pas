@@ -349,10 +349,11 @@ begin
   begin
     ExprStmt := TASTExpressionStatement(Stmt);
     if Assigned(ExprStmt.Expr) then
+    begin
       GenerateExpression(ExprStmt.Expr);
-    FCurrentProc.AddOp(O_POP_TO_BASE);
-    FCurrentProc.AddOp(O_POP_BASE);
-    FCurrentProc.AddOp(O_POP_RETURN);
+      // Pop the unused expression result from the stack
+      FCurrentProc.AddOp(O_POP);
+    end;
   end;
 end;
 

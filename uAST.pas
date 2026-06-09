@@ -132,7 +132,7 @@ type
     Body: TASTBlock;
     IsDefault: Boolean;
     constructor Create;
-    destructor Destroy; virtual;
+    destructor Destroy; override;
   end;
 
   TASTSwitchStatement = class(TASTStatement)
@@ -326,7 +326,9 @@ end;
 
 constructor TASTSwitchCase.Create;
 begin
+  inherited Create;
   IsDefault := False;
+  Body := TASTBlock.Create(0, 0);
 end;
 
 destructor TASTSwitchCase.Destroy;
@@ -334,6 +336,7 @@ begin
   if Assigned(CaseValue) then
     CaseValue.Free;
   Body.Free;
+  inherited;
 end;
 
 constructor TASTSwitchStatement.Create(ALine, ACol: Integer);

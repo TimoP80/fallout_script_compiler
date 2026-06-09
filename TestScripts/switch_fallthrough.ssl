@@ -1,0 +1,14 @@
+procedure test begin
+  switch (local_var(0)) begin
+    case 0:
+    case 1:
+      display_msg("zero or one");
+      break;
+    case 2:
+      display_msg("two");
+      break;
+    default:
+      display_msg("other");
+      break;
+  end;
+end.

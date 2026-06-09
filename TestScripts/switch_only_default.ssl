@@ -1,0 +1,7 @@
+procedure test begin
+  switch (local_var(0)) begin
+    default:
+      display_msg("default only");
+      break;
+  end;
+end.
