@@ -24,10 +24,13 @@ type
     FPreprocessor: TPreprocessor;
     FErrors: TStringList;
     FWarnings: TStringList;
+    FFMFTemplateType: TTemplateType;
     function LoadFile(const FileName: string): string;
   public
     constructor Create;
     destructor Destroy; override;
+
+    property FMFTemplateType: TTemplateType read FFMFTemplateType write FFMFTemplateType;
 
     procedure AddIncludePath(const Path: string);
     procedure DefineMacro(const Name, Value: string);
@@ -81,6 +84,7 @@ var
   Source: string;
   BasePath: string;
   Ext: string;
+  MsgSource: string;
 begin
   Result.Success := False;
   Result.ErrorCount := 0;
@@ -95,9 +99,13 @@ begin
     Ext := LowerCase(ExtractFileExt(SourceFile));
     if Ext = '.fmf' then
     begin
-      Source := FMFToSSL(Source, ChangeFileExt(ExtractFileName(SourceFile), ''));
+      // Save original FMF source for MSG generation before overwriting
+      MsgSource := FMFToMSG(Source);
+      Source := FMFToSSL(Source, ChangeFileExt(ExtractFileName(SourceFile), ''), FFMFTemplateType);
       // Debug output
       TFile.WriteAllText(ChangeFileExt(SourceFile, '.debug.ssl'), Source, TEncoding.UTF8);
+      // Generate companion .msg file
+      TFile.WriteAllText(ChangeFileExt(SourceFile, '.msg'), MsgSource, TEncoding.UTF8);
     end;
     BasePath := ExtractFilePath(SourceFile);
     FPreprocessor.AddIncludePath(BasePath);

@@ -5,6 +5,35 @@ All notable changes to the Fallout 2 SSL Compiler will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-06-11
+
+### Added
+- **FMF to SSL Converter** (`uFMFConverter.pas`) — Converts `.fmf` dialogue files (FMF Dialogue Tool format) into compilable `.ssl` scripts.
+- **Auto-generated `.msg` files** — `FMFToMSG` generates companion `.msg` files with sequential message numbers for all `NPCText`/`playertext` strings using `{num}{}{text}` format.
+- **Designer notes preserved as comments** — FMF `notes` fields are emitted as `// Designer notes:` and `// Option notes:` comments above nodes and options in the generated SSL.
+- **Multiple template types** — `TTemplateType` enum (`dtBasic`, `dtTerminal`, `dtPushable`, `dtFloaters`, `dtTimeEvent`) controls which procedures and variables the generated script includes.
+- **`-t` CLI flag** — Template type selection via `sslc -t <terminal|pushable|floaters|timeevent|time>` for FMF sources.
+- **Timed event template** — Full `dtTimeEvent` implementation:
+  - `TFloatNode` and `TTimeEvent` types with `Messages`/`CodeLines` parsing
+  - `start` procedure with `add_timer_event` initialization (uses `DefaultEvent`)
+  - `timed_event_p_proc` with `fixed_param` dispatch and automatic re-scheduling
+  - Float node procedures using `floater_rand(FLMSG_First, FLMSG_Last)` for random message display
+  - `LVAR_TimedEvent`, `FLMSG_*`, and `TE_*` macro defines
+  - `TranslateTimeEventCode()` for `call X` → `X()` and `flush_add_timer_event_sec` → `add_timer_event` conversion
+- **`floater_rand` builtin** (`$10A5`, 2 params) registered in `uBuiltins.pas`.
+
+### Changed
+- **`uCompiler.pas`** — `TCompiler.FMFTemplateType` property; `.msg` file written alongside `.ssl` for `.fmf` sources; `MsgSource` variable captures original FMF before `FMFToSSL` overwrites `Source`.
+- **`sslc.dpr`** — Parses `-t` flag and sets `Compiler.FMFTemplateType`; accepts both `time` and `timeevent` aliases.
+- **`uBuiltins.pas`** — Added `floater_rand` ($10A5, 2 params, return 0).
+
+### Fixed
+- `.msg` file was empty — `FMFToMSG` was called after `Source` had been overwritten by `FMFToSSL`; reordered to save original FMF source first.
+- `-t timeevent` not accepted — CLI only matched `time`; added `timeevent` alias.
+- `dtPushable` erroneously included floater logic in `talk_p_proc` — condition tightened from `dtFloaters, dtPushable` to `dtFloaters` only.
+- Time event `code = {` brace-on-same-line parsing — `Trimmed.EndsWith('{')` check before brace-line search.
+- Code block string parsing — `StripQuotes` reordered to strip trailing comma before quotes.
+
 ## [1.3.0] - 2026-06-09
 ### Fixed
 - **Critical**: Parser infinite loop when `else` keyword appeared in block context — `ParseBlock` would loop forever because `ParseStatement` returned `nil` for `tkElse` but the token was never consumed.

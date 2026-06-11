@@ -125,6 +125,28 @@ Source (.ssl)
 [TINTWriter] → Binary .int file
 ```
 
+## FMF Dialogue Conversion
+
+The compiler includes an FMF-to-SSL converter that turns `.fmf` dialogue files (from the FMF Dialogue Tool) into compilable `.ssl` scripts. Features:
+
+- **Auto `.msg` generation** — Companion `.msg` files with sequential message numbers
+- **Designer notes preserved** — FMF notes become `// Designer notes` / `// Option notes` comments
+- **Multiple template types** — Choose via `-t` flag:
+  - `basic` (default) — Standard dialogue
+  - `terminal` — Terminal-style (uses `use_p_proc`)
+  - `pushable` — Adds `push_p_proc`
+  - `floaters` — Floater dialogue with `LVAR_floatnode`/`LVAR_dofloat`
+  - `timeevent` (or `time`) — Timed events with `add_timer_event`, `fixed_param` dispatch, float nodes
+
+```bash
+# Basic FMF conversion
+sslc dialogue.fmf
+
+# With template type
+sslc -t timeevent timed_event.fmf
+sslc -t terminal shop.fmf
+```
+
 ## Unit Structure
 
 | Unit | Description |
@@ -136,6 +158,7 @@ Source (.ssl)
 | `uBytecode.pas` | Bytecode generator |
 | `uINTWriter.pas` | Binary INT file writer |
 | `uPreprocessor.pas` | C-style preprocessor (`#include`, `#define`, `#ifdef`, cycle detection, macro scoping) |
+| `uFMFConverter.pas` | FMF dialogue to SSL converter (`.msg` generation, template types, timed events) |
 | `uCompiler.pas` | Main compiler orchestration |
 | `sslc.dpr` | CLI entry point |
 | `FalloutCompiler.dpr` | GUI entry point |
@@ -169,15 +192,11 @@ This is a functional compiler, not a mock implementation. All systems are design
 
 ## Recent Changes
 
-**v1.2.0 (2026-05-21)** — see [CHANGELOG.md](CHANGELOG.md) for full details.
+**v1.4.0 (2026-06-11)** — see [CHANGELOG.md](CHANGELOG.md) for full details.
 
 Key highlights:
-- **Lazarus IDE support**: Added `.lpi`/`.lpr` project files for Lazarus/FPC compatibility
-- **Critical fixes**: 
-  - Unused procedure record elimination (reduces output size)
-  - INT writer header selector corrected (`$800D` format)
-  - Procedure epilogue sequence fixed
-  - Preprocessor infinite loop resolved
-  - Binary operation opcodes aligned with Fallout 2 VM spec
-- **Enhanced preprocessor**: Cycle detection, performance metrics, conditional state preservation
-- **Modular scripting support**: Improved `#include` handling and macro scoping
+- **FMF to SSL conversion** — Convert `.fmf` dialogue files to compilable `.ssl` scripts
+- **Auto `.msg` generation** — Companion message files with sequential IDs
+- **Designer notes as comments** — FMF notes preserved in generated SSL
+- **Multiple template types** — `basic`, `terminal`, `pushable`, `floaters`, `timeevent` via `-t` flag
+- **Timed event template** — Full `add_timer_event`/`fixed_param` dispatch with float nodes

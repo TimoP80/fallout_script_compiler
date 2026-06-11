@@ -368,7 +368,7 @@ begin
   RegisterFunction('gsay_reply', $1067, 2, 0);
   RegisterFunction('gsay_option', $1068, 4, 0);
   RegisterFunction('gsay_message', $1069, 3, 0);
-  RegisterFunction('giq_option', $106A, 4, 0);
+  RegisterFunction('giq_option', $106A, 5, 0);
   RegisterFunction('poison', $106B, 2, 0);
   RegisterFunction('get_poison', $106C, 1, 1);
   RegisterFunction('party_add', $106D, 1, 0);
@@ -421,6 +421,13 @@ begin
   RegisterFunction('terminate_combat', $109C, 0, 0);
   RegisterFunction('debug_msg', $109D, 1, 0);
   RegisterFunction('critter_stop_attacking', $109E, 1, 0);
+  RegisterFunction('start_gdialog', $109F, 5, 0);
+  RegisterFunction('end_dialogue', $10A0, 0, 0);
+  RegisterFunction('dude_is_female', $10A1, 0, 1);
+  RegisterFunction('self_attack_dude', $10A2, 0, 0);
+  RegisterFunction('obj_in_party', $10A3, 1, 1);
+  RegisterFunction('inc_good_critter', $10A4, 0, 0);
+  RegisterFunction('floater_rand', $10A5, 2, 0);
 end;
 
 end.
