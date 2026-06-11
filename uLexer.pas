@@ -277,6 +277,7 @@ begin
   else if LowerIdent = 'break' then Result := tkBreak
   else if LowerIdent = 'default' then Result := tkDefault
   else if LowerIdent = 'var' then Result := tkVar
+  else if LowerIdent = 'variable' then Result := tkVar
   else if LowerIdent = 'const' then Result := tkConst
   else if LowerIdent = 'and' then Result := tkAnd
   else if LowerIdent = 'or' then Result := tkOr
@@ -342,7 +343,7 @@ begin
             FTokens.Add(DoCreateToken(tkEq, '==', StartLine, StartCol));
           end
           else
-            FTokens.Add(DoCreateToken(tkAssign, '=', StartLine, StartCol));
+            FTokens.Add(DoCreateToken(tkEq, '=', StartLine, StartCol));
         end;
       '!':
         begin
@@ -385,7 +386,17 @@ begin
       '}': begin AdvanceChar; FTokens.Add(DoCreateToken(tkRBrace, '}', StartLine, StartCol)); end;
       ',': begin AdvanceChar; FTokens.Add(DoCreateToken(tkComma, ',', StartLine, StartCol)); end;
       ';': begin AdvanceChar; FTokens.Add(DoCreateToken(tkSemicolon, ';', StartLine, StartCol)); end;
-      ':': begin AdvanceChar; FTokens.Add(DoCreateToken(tkColon, ':', StartLine, StartCol)); end;
+      ':':
+        begin
+          AdvanceChar;
+          if PeekChar = '=' then
+          begin
+            AdvanceChar;
+            FTokens.Add(DoCreateToken(tkAssign, ':=', StartLine, StartCol));
+          end
+          else
+            FTokens.Add(DoCreateToken(tkColon, ':', StartLine, StartCol));
+        end;
       '.': begin AdvanceChar; FTokens.Add(DoCreateToken(tkDot, '.', StartLine, StartCol)); end;
       '#':
         begin

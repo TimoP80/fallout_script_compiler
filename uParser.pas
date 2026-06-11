@@ -17,6 +17,7 @@ type
     FTokens: TList<TToken>;
     FPosition: Integer;
     FErrors: TList<TParseError>;
+    FLoopDepth: Integer;
     function CurrentToken: TToken;
     function PeekToken(Offset: Integer = 1): TToken;
     function Advance: TToken;
@@ -56,6 +57,7 @@ begin
   FTokens := ATokens;
   FPosition := 0;
   FErrors := TList<TParseError>.Create;
+  FLoopDepth := 0;
 end;
 
 destructor TParser.Destroy;
@@ -312,9 +314,18 @@ begin
     tkSwitch: Result := ParseSwitchStatement;
     tkBreak:
       begin
-        Advance;
-        Result := TASTBreakStatement.Create(CurrentToken.Line, CurrentToken.Column);
-        Expect(tkSemicolon, 'Expected ";" after break');
+        if FLoopDepth <= 0 then
+        begin
+          AddError('break outside of switch or loop', CurrentToken.Line, CurrentToken.Column);
+          Advance;
+          Result := nil;
+        end
+        else
+        begin
+          Advance;
+          Result := TASTBreakStatement.Create(CurrentToken.Line, CurrentToken.Column);
+          Expect(tkSemicolon, 'Expected ";" after break');
+        end;
       end;
     tkBegin: Result := ParseBlock;
     tkVar:
@@ -404,6 +415,7 @@ var
   Stmt: TASTStatement;
 begin
   Result := TASTWhileStatement.Create(CurrentToken.Line, CurrentToken.Column);
+  Inc(FLoopDepth);
   Advance; // consume 'while'
   Expect(tkLParen, 'Expected "(" after while');
   Result.Condition := ParseExpression;
@@ -423,6 +435,7 @@ begin
         Result.Body.Statements.Add(Stmt);
     end;
   end;
+  Dec(FLoopDepth);
 end;
 
 function TParser.ParseForStatement: TASTForStatement;
@@ -430,6 +443,7 @@ var
   Stmt: TASTStatement;
 begin
   Result := TASTForStatement.Create(CurrentToken.Line, CurrentToken.Column);
+  Inc(FLoopDepth);
   Advance; // consume 'for'
   Expect(tkLParen, 'Expected "(" after for');
 
@@ -437,9 +451,10 @@ begin
   begin
     Result.Variable := CurrentToken.Text;
     Advance;
-  end;
-
-  Expect(tkAssign, 'Expected "=" in for loop');
+  end;    if CurrentToken.TokenType = tkAssign then
+      Advance
+    else
+      Expect(tkEq, 'Expected "=" or ":=" in for loop');
   Result.StartExpr := ParseExpression;
   Expect(tkTo, 'Expected "to" or "downto"');
   Result.EndExpr := ParseExpression;
@@ -459,6 +474,7 @@ begin
         Result.Body.Statements.Add(Stmt);
     end;
   end;
+  Dec(FLoopDepth);
 end;
 
 function TParser.ParseSwitchStatement: TASTSwitchStatement;
@@ -467,6 +483,7 @@ var
   Stmt: TASTStatement;
 begin
   Result := TASTSwitchStatement.Create(CurrentToken.Line, CurrentToken.Column);
+  Inc(FLoopDepth);
   Advance; // consume 'switch'
   Expect(tkLParen, 'Expected "(" after switch');
   Result.Expression := ParseExpression;
@@ -498,6 +515,7 @@ begin
     Result.Cases.Add(CaseItem);
   end;
 
+  Dec(FLoopDepth);
   Expect(tkEnd, 'Expected "end" after switch');
 end;
 

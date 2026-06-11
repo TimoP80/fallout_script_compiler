@@ -25,7 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **`uCompiler.pas`** — `TCompiler.FMFTemplateType` property; `.msg` file written alongside `.ssl` for `.fmf` sources; `MsgSource` variable captures original FMF before `FMFToSSL` overwrites `Source`.
 - **`sslc.dpr`** — Parses `-t` flag and sets `Compiler.FMFTemplateType`; accepts both `time` and `timeevent` aliases.
-- **`uBuiltins.pas`** — Added `floater_rand` ($10A5, 2 params, return 0).
+- **Lexer** — `variable` keyword now recognized as `tkVar` (alias for `var`).
+- **Lexer** — `=` is now `tkEq` (equality); `:=` is `tkAssign` (assignment).
+- **`uParser.pas`** — `FLoopDepth` tracking prevents `break` from being used outside of loops or switch statements.
+- **`uParser.pas`** — `for` loop now accepts both `:=` and `=` for the assignment operator.
+- **Test harness** (`test_programmatic.dpr`) — Updated all test cases for new syntax: parenthesized conditions, `:=` assignment, `var` keyword.
 
 ### Fixed
 - `.msg` file was empty — `FMFToMSG` was called after `Source` had been overwritten by `FMFToSSL`; reordered to save original FMF source first.
@@ -33,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dtPushable` erroneously included floater logic in `talk_p_proc` — condition tightened from `dtFloaters, dtPushable` to `dtFloaters` only.
 - Time event `code = {` brace-on-same-line parsing — `Trimmed.EndsWith('{')` check before brace-line search.
 - Code block string parsing — `StripQuotes` reordered to strip trailing comma before quotes.
+- **FMF parser robustness** — All brace detection (`{` / `}`) now uses `Pos()` instead of standalone `Trimmed =` comparisons, handling inline braces throughout the parser (Node header, Node body, options block, conditions block, FloatNode header, TimeEvent code block, and ParseStringList).
+- **FMF parser content-before-brace ordering** — `notes`/`is_wtg` checked before `{` in Node header; `NPCText`/`NPCFemaleText` checked before `}` in Node body (prevents false positives when content literally contains braces).
+- **FMF parser trailing brace stripping** — `notes` lines with trailing `{` (e.g., `notes "text" {`) now strip the brace before storing, preventing the node body opening brace from being consumed.
+- **FMF parser empty-node skipping** — `Node ""` and `Floatnode ""` entries (FMF designer tool artifacts) are now skipped during parsing with proper brace-depth counting.
+- **FMF parser empty/malformed TimeEvent skipping** — TimeEvents without a `code =` block are skipped; unrecognized lines in the property loop trigger a safety break to prevent consuming subsequent content.
+- **FMF parser `= → :=`** — Generated SSL now uses `:=` for assignment matching the lexer change (`=` is now equality).
 
 ## [1.3.0] - 2026-06-09
 ### Fixed

@@ -129,56 +129,56 @@ begin
   // Basic if with single statement body (our fix)
   Results[0] := RunTest(
     'if with single statement body',
-    'procedure start begin if local_var(0) = 0 then display_msg("zero"); end',
+    'procedure start begin if (local_var(0) = 0) then display_msg("zero"); end',
     True
   );
 
   // If-else with single statement bodies (our fix)
   Results[1] := RunTest(
     'if-else with single statement bodies',
-    'procedure start begin if local_var(0) = 0 then display_msg("zero"); else display_msg("other"); end',
+    'procedure start begin if (local_var(0) = 0) then display_msg("zero"); else display_msg("other"); end',
     True
   );
 
   // If with begin..end block
   Results[2] := RunTest(
     'if with begin..end block',
-    'procedure start begin if local_var(0) = 0 then begin display_msg("zero"); display_msg("still zero"); end; end',
+    'procedure start begin if (local_var(0) = 0) then begin display_msg("zero"); display_msg("still zero"); end; end',
     True
   );
 
   // If-else with begin..end blocks (our fix: semicolon after end before else)
   Results[3] := RunTest(
     'if-else with begin..end blocks',
-    'procedure start begin if local_var(0) = 0 then begin display_msg("zero"); end else begin display_msg("other"); end; end',
+    'procedure start begin if (local_var(0) = 0) then begin display_msg("zero"); end else begin display_msg("other"); end; end',
     True
   );
 
   // Nested if-else
   Results[4] := RunTest(
     'nested if-else',
-    'procedure start begin if local_var(0) = 0 then if local_var(1) = 1 then display_msg("both"); else display_msg("first only"); end',
+    'procedure start begin if (local_var(0) = 0) then if (local_var(1) = 1) then display_msg("both"); else display_msg("first only"); end',
     True
   );
 
   // If with semicolons before else (our fix)
   Results[5] := RunTest(
     'if with semicolon before else',
-    'procedure start begin if local_var(0) = 0 then display_msg("zero"); else display_msg("other"); end',
+    'procedure start begin if (local_var(0) = 0) then display_msg("zero"); else display_msg("other"); end',
     True
   );
 
   // Multiple elseif pattern (if-else-if)
   Results[6] := RunTest(
     'if-else-if chain',
-    'procedure start begin if local_var(0) = 0 then display_msg("zero"); else if local_var(0) = 1 then display_msg("one"); else display_msg("other"); end',
+    'procedure start begin if (local_var(0) = 0) then display_msg("zero"); else if (local_var(0) = 1) then display_msg("one"); else display_msg("other"); end',
     True
   );
 
   // If with complex condition
   Results[7] := RunTest(
     'if with complex condition',
-    'procedure start begin if local_var(0) >= 0 and local_var(0) <= 10 then display_msg("in range"); end',
+    'procedure start begin if (local_var(0) >= 0 and local_var(0) <= 10) then display_msg("in range"); end',
     True
   );
 
@@ -198,28 +198,28 @@ begin
   // Basic while with single statement body (our fix)
   Results[0] := RunTest(
     'while with single statement body',
-    'procedure start begin while local_var(0) < 10 do display_msg("looping"); end',
+    'procedure start begin while (local_var(0) < 10) do display_msg("looping"); end',
     True
   );
 
   // While with begin..end block
   Results[1] := RunTest(
     'while with begin..end block',
-    'procedure start begin while local_var(0) < 10 do begin display_msg("loop"); set_local_var(0, local_var(0) + 1); end; end',
+    'procedure start begin while (local_var(0) < 10) do begin display_msg("loop"); set_local_var(0, local_var(0) + 1); end; end',
     True
   );
 
   // While without 'do' keyword (allowed in some dialects)
   Results[2] := RunTest(
     'while without do keyword',
-    'procedure start begin while local_var(0) < 10 display_msg("looping"); end',
+    'procedure start begin while (local_var(0) < 10) display_msg("looping"); end',
     True
   );
 
   // While with comparison
   Results[3] := RunTest(
     'while with inequality',
-    'procedure start begin while local_var(0) <> 0 do display_msg("not zero"); end',
+    'procedure start begin while (local_var(0) <> 0) do display_msg("not zero"); end',
     True
   );
 
@@ -239,21 +239,21 @@ begin
   // Basic for loop with single statement (our fix)
   Results[0] := RunTest(
     'for loop with single statement body',
-    'procedure start begin for i := 0 to 10 do display_msg("count"); end',
+    'procedure start begin for (i = 0 to 10) do display_msg("count"); end',
     True
   );
 
   // For loop with begin..end block
   Results[1] := RunTest(
     'for loop with begin..end block',
-    'procedure start begin for i := 0 to 10 do begin display_msg("count"); set_local_var(1, i); end; end',
+    'procedure start begin for (i = 0 to 10) do begin display_msg("count"); set_local_var(1, i); end; end',
     True
   );
 
   // For loop without 'do' keyword
   Results[2] := RunTest(
     'for loop without do keyword',
-    'procedure start begin for i := 0 to 10 display_msg("count"); end',
+    'procedure start begin for (i = 0 to 10) display_msg("count"); end',
     True
   );
 
@@ -322,7 +322,7 @@ begin
   // Switch with nested if inside case
   Results[7] := RunTest(
     'switch with nested if in case',
-    'procedure start begin switch (local_var(0)) begin case 0: if local_var(1) = 1 then display_msg("both"); else display_msg("zero only"); break; default: break; end; end',
+    'procedure start begin switch (local_var(0)) begin case 0: if (local_var(1) = 1) then display_msg("both"); else display_msg("zero only"); break; default: break; end; end',
     True
   );
 
@@ -342,14 +342,14 @@ begin
   // Global variable declaration
   Results[0] := RunTest(
     'global variable declaration',
-    'variable test_var; procedure start begin end',
+    'var test_var; procedure start begin end',
     True
   );
 
   // Global variable with initial value
   Results[1] := RunTest(
     'global variable with initial value',
-    'variable myvar = 42; procedure start begin end',
+    'var myvar := 42; procedure start begin end',
     True
   );
 
@@ -439,7 +439,7 @@ begin
   // Just a variable declaration (no procedures)
   Results[2] := RunTest(
     'global variables only (valid in headers)',
-    'variable x; variable y; variable z = 100;',
+    'var x; var y; var z := 100;',
     True
   );
 
@@ -453,7 +453,7 @@ begin
   // Hex numbers
   Results[4] := RunTest(
     'hex number literal',
-    'procedure start begin if local_var(0) = 0xFF then display_msg("hex"); end',
+    'procedure start begin if (local_var(0) = 0xFF) then display_msg("hex"); end',
     True
   );
 

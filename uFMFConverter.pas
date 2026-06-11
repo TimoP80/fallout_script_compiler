@@ -193,7 +193,8 @@ var
     begin
       Line := Lines[LineNo];
       Trimmed := Trim(Line);
-      if Trimmed = '}' then
+      // '}' may be on the same line as a string item or standalone
+      if Pos('}', Trimmed) > 0 then
         Break;
       if Trimmed.EndsWith(',') then
         SetLength(Trimmed, Length(Trimmed) - 1);
@@ -238,18 +239,56 @@ begin
         var FlNode: TFloatNode;
         FlNode.Name := ExtractQuoted(Trimmed);
         FlNode.Notes := '';
+
+        // Skip empty-name floatnodes (artifacts from FMF designer tool)
+        if FlNode.Name = '' then
+        begin
+          var BraceDepth: Integer := 0;
+          Inc(LineNo);
+          while LineNo < Lines.Count do
+          begin
+            Line := Lines[LineNo];
+            Trimmed := Trim(Line);
+            var HasOpen: Boolean := Pos('{', Trimmed) > 0;
+            var HasClose: Boolean := Pos('}', Trimmed) > 0;
+            if HasOpen then Inc(BraceDepth);
+            if HasClose then
+            begin
+              Dec(BraceDepth);
+              if (BraceDepth = 0) and not (HasOpen and HasClose) then
+              begin
+                Inc(LineNo);
+                Break;
+              end;
+            end;
+            Inc(LineNo);
+          end;
+          Continue;
+        end;
+
         Inc(LineNo);
         while LineNo < Lines.Count do
         begin
           Line := Lines[LineNo];
           Trimmed := Trim(Line);
-          if Trimmed = '{' then
-            Break
-          else if Trimmed.StartsWith('notes ') then
-            FlNode.Notes := StripQuotes(Copy(Trimmed, 7, MaxInt));
+          // Check notes BEFORE brace detection to avoid false positive
+          // when notes text contains '{' (e.g. notes "Testing {something}")
+          if Trimmed.StartsWith('notes ') then
+          begin
+            var NoteText := Copy(Trimmed, 7, MaxInt);
+            // Strip trailing '{' if it's on the same line (e.g. 'notes "text" {')
+            if NoteText.EndsWith('{') then
+              SetLength(NoteText, Length(NoteText) - 1);
+            FlNode.Notes := StripQuotes(Trim(NoteText));
+          end
+          // '{' may be on the same line or standalone
+          else if Pos('{', Trimmed) > 0 then
+            Break;
           Inc(LineNo);
         end;
-        Inc(LineNo); // Skip '{'
+        // Skip past '{' — account for it being on the current line or standalone
+        if (LineNo < Lines.Count) and (Pos('{', Trim(Lines[LineNo])) > 0) then
+          Inc(LineNo);
         ParseStringList(FlNode.Messages);
         Inc(LineNo); // Skip '}'
         State.FloatNodes.Add(FlNode);
@@ -280,16 +319,18 @@ begin
         end;
         // Read subsequent property lines and code block
         Inc(LineNo);
+        var CodeBlockFound: Boolean := False;
         while LineNo < Lines.Count do
         begin
           Line := Lines[LineNo];
           Trimmed := Trim(Line);
           if Trimmed.StartsWith('code =') then
           begin
+            CodeBlockFound := True;
             // Find opening brace (may be on same line e.g. 'code = {')
-            if not Trimmed.EndsWith('{') then
+            if Pos('{', Trimmed) = 0 then
             begin
-              while (LineNo < Lines.Count) and (Trim(Lines[LineNo]) <> '{') do
+              while (LineNo < Lines.Count) and (Pos('{', Trim(Lines[LineNo])) = 0) do
                 Inc(LineNo);
             end;
             Inc(LineNo); // Skip past the brace line
@@ -297,7 +338,8 @@ begin
             begin
               Line := Lines[LineNo];
               Trimmed := Trim(Line);
-              if Trimmed = '}' then
+              // '}' may be on the same line as a code item or standalone
+              if Pos('}', Trimmed) > 0 then
                 Break;
               var CodeLine: string := Trim(Trimmed);
               // Strip trailing comma first (FMF format: "text",)
@@ -312,7 +354,9 @@ begin
               end;
               Inc(LineNo);
             end;
-            Inc(LineNo); // Skip '}'
+            // Skip past '}' — account for it being on the current line or standalone
+            if (LineNo < Lines.Count) and (Pos('}', Trim(Lines[LineNo])) > 0) then
+              Inc(LineNo);
             Break;
           end
           else if Trimmed.StartsWith('IsRandomInterval') then
@@ -320,8 +364,17 @@ begin
           else if Trimmed.StartsWith('IntervalMin=') then
             Ev.IntervalMin := StrToIntDef(Trim(Copy(Trimmed, 13, MaxInt)), 1)
           else if Trimmed.StartsWith('IntervalMax=') then
-            Ev.IntervalMax := StrToIntDef(Trim(Copy(Trimmed, 13, MaxInt)), 5);
+            Ev.IntervalMax := StrToIntDef(Trim(Copy(Trimmed, 13, MaxInt)), 5)
+          // Safety break: if line is not empty/comment and not a TimeEvent property,
+          // assume the TimeEvent block has ended (prevents consuming subsequent content)
+          else if (Trimmed <> '') and not (Trimmed.StartsWith('//') or Trimmed.StartsWith('/*')) then
+            Break;
           Inc(LineNo);
+        end;
+        // Skip empty/malformed TimeEvents (no code block and no useful params)
+        if not CodeBlockFound then
+        begin
+          Continue;
         end;
         State.TimeEvents.Add(Ev);
         Continue;
@@ -356,17 +409,57 @@ begin
 
         CurrentNode := TFMFNodeData.Create;
         CurrentNode.Node.NodeID := ExtractQuoted(Trimmed);
+
+        // Skip empty-ID nodes (artifacts from FMF designer tool)
+        if CurrentNode.Node.NodeID = '' then
+        begin
+          var BraceDepth: Integer := 0;
+          CurrentNode.Free;
+          CurrentNode := nil;
+          Inc(LineNo);
+          // Skip past the node header and body using brace-depth counting
+          while LineNo < Lines.Count do
+          begin
+            Line := Lines[LineNo];
+            Trimmed := Trim(Line);
+            var HasOpen: Boolean := Pos('{', Trimmed) > 0;
+            var HasClose: Boolean := Pos('}', Trimmed) > 0;
+            if HasOpen then Inc(BraceDepth);
+            if HasClose then
+            begin
+              Dec(BraceDepth);
+              // If '{' and '}' on same line, net depth change is 0, so skip the break check
+              if (BraceDepth = 0) and not (HasOpen and HasClose) then
+              begin
+                Inc(LineNo);
+                Break;
+              end;
+            end;
+            Inc(LineNo);
+          end;
+          Continue; // back to top-level while loop
+        end;
+
         Inc(LineNo);
         while LineNo < Lines.Count do
         begin
           Line := Lines[LineNo];
           Trimmed := Trim(Line);
-          if Trimmed = '{' then
-            Break
-          else if Trimmed.StartsWith('notes ') then
-            CurrentNode.Node.Notes := StripQuotes(Copy(Trimmed, 7, MaxInt))
+          // Check notes/is_wtg BEFORE brace detection to avoid false positive
+          // when notes text contains '{' (e.g. notes "Testing {something}")
+          if Trimmed.StartsWith('notes ') then
+          begin
+            var NoteText := Copy(Trimmed, 7, MaxInt);
+            // Strip trailing '{' if it's on the same line (e.g. 'notes "text" {')
+            if NoteText.EndsWith('{') then
+              SetLength(NoteText, Length(NoteText) - 1);
+            CurrentNode.Node.Notes := StripQuotes(Trim(NoteText));
+          end
           else if Trimmed.StartsWith('is_wtg ') then
-            CurrentNode.Node.IsWTG := Pos('true', LowerCase(Trimmed)) > 0;
+            CurrentNode.Node.IsWTG := Pos('true', LowerCase(Trimmed)) > 0
+          // '{' may be on the same line or standalone
+          else if Pos('{', Trimmed) > 0 then
+            Break;
           Inc(LineNo);
         end;
         Inc(LineNo); // Skip '{'
@@ -374,9 +467,9 @@ begin
         begin
           Line := Lines[LineNo];
           Trimmed := Trim(Line);
-          if Trimmed = '}' then
-            Break
-          else if Trimmed.StartsWith('NPCText ') then
+          // Check NPCText/NPCFemaleText BEFORE brace detection to avoid false
+          // positive when text contains '}' or '}' shares the line with content
+          if Trimmed.StartsWith('NPCText ') then
           begin
             S := Copy(Trimmed, 9, MaxInt);
             CurrentNode.Node.NPCText := StripQuotes(Trim(S));
@@ -388,16 +481,24 @@ begin
             CurrentNode.Node.NPCFemaleText := StripQuotes(Trim(S));
             AssignMsgNum(State, CurrentNode.Node.NPCFemaleText);
           end
+          // '}' may be on the same line as NPCText or standalone
+          else if Pos('}', Trimmed) > 0 then
+            Break
           else if Trimmed.StartsWith('options ') then
           begin
-            while (LineNo < Lines.Count) and (Trim(Lines[LineNo]) <> '{') do
-              Inc(LineNo);
+            // '{' may be on the same line as 'options' (e.g. 'options {')
+            if Pos('{', Trimmed) = 0 then
+            begin
+              while (LineNo < Lines.Count) and (Pos('{', Trim(Lines[LineNo])) = 0) do
+                Inc(LineNo);
+            end;
             Inc(LineNo);
             while LineNo < Lines.Count do
             begin
               Line := Lines[LineNo];
               Trimmed := Trim(Line);
-              if Trimmed = '}' then
+              // '}' may be on the same line as the last option or standalone
+              if Pos('}', Trimmed) > 0 then
                 Break;
               if Trimmed = '' then
               begin
@@ -406,8 +507,12 @@ begin
               end;
               if Trimmed.StartsWith('conditions ') then
               begin
-                while (LineNo < Lines.Count) and (Trim(Lines[LineNo]) <> '}') do
-                  Inc(LineNo);
+                // '}' may be on the same line as 'conditions { ... }'
+                if Pos('}', Trimmed) = 0 then
+                begin
+                  while (LineNo < Lines.Count) and (Pos('}', Trim(Lines[LineNo])) = 0) do
+                    Inc(LineNo);
+                end;
                 Inc(LineNo);
                 Continue;
               end;
@@ -654,7 +759,7 @@ begin
       SB.AppendLine('');
     end;
 
-    SB.AppendLine('var Only_Once = 0;');
+    SB.AppendLine('var Only_Once := 0;');
     SB.AppendLine('');
 
     // === Standard procedure bodies ===
@@ -680,7 +785,7 @@ begin
     SB.AppendLine('');
 
     SB.AppendLine('procedure map_enter_p_proc begin');
-    SB.AppendLine('   Only_Once = 0;');
+    SB.AppendLine('   Only_Once := 0;');
     SB.AppendLine('end');
     SB.AppendLine('');
 
