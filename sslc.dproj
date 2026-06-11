@@ -7,9 +7,10 @@
     <DCC_DependencyCheckOutputName>.\bin\sslc.exe</DCC_DependencyCheckOutputName>
     <DCC_DcuOutput>.\bin\DCU</DCC_DcuOutput>
     <DCC_ExeOutput>.\bin</DCC_ExeOutput>
-    <DCC_UnitSearchPath>.\</DCC_UnitSearchPath>
+    <DCC_UnitSearchPath>.\;$(BDSLIB)\$(Platform)\release</DCC_UnitSearchPath>
+    <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;Winapi;IBX;Bde;DataSnap</DCC_Namespace>
     <DCC_64Bit>true</DCC_64Bit>
-    <DCC_Framework>VCL</DCC_Framework>
+    <DCC_Framework>None</DCC_Framework>
     <DCC_DebugInformation>false</DCC_DebugInformation>
   </PropertyGroup>
   <ItemGroup>
@@ -22,6 +23,8 @@
     <None Include="uParser.pas" />
     <None Include="uBytecode.pas" />
     <None Include="uINTWriter.pas" />
+    <None Include="uPreprocessor.pas" />
+    <None Include="uFMFConverter.pas" />
     <None Include="uCompiler.pas" />
   </ItemGroup>
 </Project>
