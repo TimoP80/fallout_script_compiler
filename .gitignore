@@ -3,6 +3,9 @@ __history/
 *.dcu
 *.dcp
 *.drc
+*.ppu
+*.o
+*.obj
 *.res
 *.local
 *.identcache
@@ -35,3 +38,13 @@ Desktop.ini
 # Temporary
 *.tmp
 *.log
+nul
+
+# Generated output
+*.msg
+*.debug.ssl
+
+# GNU Global tags
+GPATH
+GRTAGS
+GTAGS
