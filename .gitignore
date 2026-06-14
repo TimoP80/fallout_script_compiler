@@ -27,6 +27,11 @@ bin/
 *.bak
 *~
 .~*
+*.backup*
+*.switch_backup
+*.before_fix
+*.if_backup*
+*.original
 
 # Test files
 *.int
@@ -48,3 +53,18 @@ nul
 GPATH
 GRTAGS
 GTAGS
+
+# Numbered IDE icon duplicates (keep sslc_Icon.ico)
+sslc_Icon[0-9]*.ico
+
+# Versioning scratch .inc files (keep version.inc)
+temp*.inc
+version_clean.inc
+version_fixed.inc
+
+# Local test-run output
+output.txt
+error.txt
+temp.txt
+test_sfall.txt
+testout2.txt
