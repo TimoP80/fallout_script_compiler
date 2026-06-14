@@ -1,0 +1,9 @@
+Node "-1"
+notes ""
+is_wtg = false
+{
+NPCText "Test"
+       options {
+           int=4 Reaction=REACTION_NEUTRAL playertext "OK" linkto "done"  notes ""
+               }
+}

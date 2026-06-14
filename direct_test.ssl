@@ -1,0 +1,125 @@
+﻿/*
+        Name:           TestNPC
+        Location:       TestLocation
+        Description:    A test
+
+           Created: kesäkuu 11, 2026
+*/
+
+/* Include Files */
+
+#define NPC_REACTION_VAR        7
+
+#include "..\\headers\\define.h"
+
+#define NAME                    SCRIPT_TEST
+
+#define TOWN_REP_VAR            (0)
+
+#include "..\\headers\\command.h"
+#include "..\\headers\\ModReact.h"
+
+/* Standard Script Procedures */
+
+procedure start;
+procedure critter_p_proc;
+procedure pickup_p_proc;
+procedure talk_p_proc;
+procedure destroy_p_proc;
+procedure look_at_p_proc;
+procedure description_p_proc;
+procedure use_skill_on_p_proc;
+procedure damage_p_proc;
+procedure map_enter_p_proc;
+procedure timed_event_p_proc;
+
+/* Script Specific Procedure Calls */
+procedure Node998;
+procedure Node999;
+
+procedure Node000;
+
+//~~~~~~~~~~~~~~~~ DESIGNER TOOL STARTS HERE
+//~~~~~~~~~~~~~~~~ DESIGN TOOL ENDS HERE
+
+/* Local Variables which are saved. */
+#define LVAR_Herebefore                 (4)
+#define LVAR_Hostile                    (5)
+#define LVAR_Personal_Enemy             (6)
+#define LVAR_Caught_Thief               (7)
+
+var Only_Once := 0;
+
+procedure start begin
+end
+
+procedure map_enter_p_proc begin
+   Only_Once := 0;
+end
+
+procedure critter_p_proc begin
+   if ((local_var(LVAR_Hostile) != 0) and (obj_can_see_obj(self_obj(), dude_obj()))) then begin
+       set_local_var(LVAR_Hostile, 1);
+       self_attack_dude();
+   end
+end
+
+procedure damage_p_proc begin
+   if (obj_in_party(source_obj())) then begin
+       set_local_var(LVAR_Personal_Enemy, 1);
+   end
+end
+
+procedure pickup_p_proc begin
+   if (source_obj() == dude_obj()) then begin
+       set_local_var(LVAR_Hostile, 2);
+   end
+end
+
+procedure talk_p_proc begin
+   start_gdialog(NAME, self_obj(), 4, -1, -1);
+   gsay_start();
+      Node000();
+   gsay_end();
+   end_dialogue();
+end
+
+procedure timed_event_p_proc begin
+end
+
+procedure destroy_p_proc begin
+   inc_good_critter();
+end
+
+procedure look_at_p_proc begin
+   script_overrides();
+   if (local_var(LVAR_Herebefore) == 0) then
+      display_msg("TestNPC");
+   else
+      display_msg("TestNPC (familiar)");
+end
+
+procedure description_p_proc begin
+   script_overrides();
+   display_msg("A test");
+end
+
+procedure use_skill_on_p_proc begin
+end
+
+procedure Node998 begin
+   set_local_var(LVAR_Hostile, 2);
+end
+
+procedure Node999 begin
+   debug_msg("LVAR_Herebefore == " + local_var(LVAR_Herebefore));
+   if (local_var(LVAR_Herebefore) == 0) then begin
+      set_local_var(LVAR_Herebefore, 1);
+   end
+end
+
+procedure Node000 begin
+   gsay_reply(NAME, "Hello from FMF");
+   giq_option(4, NAME, "OK", Node999, 50);
+end
+

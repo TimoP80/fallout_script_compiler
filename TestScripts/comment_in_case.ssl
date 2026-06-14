@@ -1,0 +1,8 @@
+procedure test begin
+  switch (local_var(0)) begin
+    case 0: // comment
+      break;
+    default:
+      break;
+  end;
+end.

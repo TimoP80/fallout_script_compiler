@@ -1,0 +1,18 @@
+procedure test begin
+  switch (local_var(0)) begin
+    case 0: // 0
+      display_msg("Hello, wanderer! What brings you to these parts?");
+      break;
+
+  case 1: // Leave
+    display_msg("Fair winds and following seas, traveler.");
+      break;
+
+  case 2: // Adventure
+    display_msg("Head east to the old mine. There's treasure to be found... if you dare.");
+      break;
+
+  default:
+    break;
+  end;
+end.

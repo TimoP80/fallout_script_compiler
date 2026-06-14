@@ -1,0 +1,15 @@
+NPCName "TestNPC"
+Location "TestLocation"
+Description "A test"
+
+/* Regular nodes */
+
+Node "0"
+notes ""
+is_wtg = false
+{
+NPCText "Hello from FMF"
+       options {
+           int=4 Reaction=REACTION_NEUTRAL playertext "OK" linkto "done"  notes ""
+               }
+}

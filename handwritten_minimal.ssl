@@ -1,0 +1,9 @@
+// Generated from FMF file - WARNING: Experimental FMF support
+// This is a placeholder conversion. Dialogue options and links are ignored.
+
+procedure test begin
+  if local_var(0) = 0 then
+    display_msg("Hello");
+  else
+    // default case (no action)
+end;

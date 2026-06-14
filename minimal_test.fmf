@@ -1,0 +1,36 @@
+NPCName "TestNPC"
+Location "TestLocation"
+Description "A test NPC for FMF support"
+
+/* Regular nodes */
+
+Node "0"
+notes ""
+is_wtg = false
+{
+NPCText "Hello, wanderer! What brings you to these parts?"
+       options {
+           int=4 Reaction=REACTION_NEUTRAL playertext "Just passing through." linkto "Leave"  notes ""
+           int=4 Reaction=REACTION_FRIENDLY playertext "I'\''m looking for adventure!" linkto "Adventure"  notes ""
+               }
+}
+
+Node "Leave"
+notes ""
+is_wtg = false
+{
+NPCText "Fair winds and following seas, traveler."
+       options {
+           int=4 Reaction=REACTION_NEUTRAL playertext "[End]" linkto "done"  notes ""
+               }
+}
+
+Node "Adventure"
+notes ""
+is_wtg = false
+{
+NPCText "Head east to the old mine. There'\''s treasure to be found... if you dare."
+       options {
+           int=4 Reaction=REACTION_NEUTRAL playertext "Thanks for the tip!" linkto "Leave"  notes ""
+               }
+}

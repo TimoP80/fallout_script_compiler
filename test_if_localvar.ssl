@@ -1,0 +1,7 @@
+procedure test begin
+  if (local_var(0) = 0) then begin
+    display_msg("zero");
+  end else begin
+    display_msg("not zero");
+  end;
+end.

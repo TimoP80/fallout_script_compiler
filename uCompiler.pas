@@ -178,7 +178,7 @@ begin
   if OutputFile <> '' then
   begin
     TINTWriter.Save(FBytecodeGen.Procedures, FBytecodeGen.StringTable,
-      FBytecodeGen.GlobalVars, OutputFile);
+      FBytecodeGen.GlobalVars, FBytecodeGen.NameRefs, OutputFile);
     Result.OutputFile := OutputFile;
   end;
 

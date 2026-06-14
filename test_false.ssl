@@ -1,0 +1,4 @@
+procedure test begin
+  if false then
+    display_msg("Hello");
+  end;

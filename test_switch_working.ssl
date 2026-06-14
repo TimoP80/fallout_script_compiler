@@ -1,0 +1,9 @@
+procedure test begin
+  switch (local_var(0)) begin
+    case 0:
+      display_msg("test");
+      break;
+    default:
+      break;
+  end;
+end.

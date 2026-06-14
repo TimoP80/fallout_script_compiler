@@ -1,0 +1,13 @@
+procedure test begin
+// Generated from FMF file - WARNING: Experimental FMF support
+// This is a placeholder conversion. Dialogue options and links are ignored.
+
+  if local_var(0) = 0 then
+    display_msg("Hello, wanderer! What brings you to these parts?");
+  else if local_var(0) = 1 then
+    display_msg("Fair winds and following seas, traveler.");
+  else if local_var(0) = 2 then
+    display_msg("Head east to the old mine. There''s treasure to be found... if you dare.");
+  else
+    // default case (no action)
+end;

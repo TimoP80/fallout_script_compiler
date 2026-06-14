@@ -1,0 +1,8 @@
+procedure test begin
+  // Generated from FMF file
+  // NPC: "TestNPC"
+  // Location: "TestLocation"
+  // Description: "A test"
+
+  display_msg("Hello from FMF");
+end

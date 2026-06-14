@@ -1,0 +1,4 @@
+/* Simple Hello World script for Fallout 2 */
+procedure start begin
+  display_msg("Hello Wasteland!");
+end

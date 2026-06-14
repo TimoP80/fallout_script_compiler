@@ -1,0 +1,5 @@
+procedure test begin
+  if local_var(0) = 0 then begin
+    display_msg("Hello");
+  end;
+end;

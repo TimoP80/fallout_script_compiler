@@ -3,7 +3,7 @@ program TestProgrammatic;
 {$APPTYPE CONSOLE}
 
 uses
-  SysUtils, Classes,
+  System.SysUtils, System.Classes,
   uCompiler in 'uCompiler.pas',
   uLexer in 'uLexer.pas',
   uAST in 'uAST.pas',
@@ -500,8 +500,4 @@ begin
     GCompiler.Free;
   end;
 
-  // Pause if running from IDE
-  WriteLn('');
-  Write('Press Enter to exit...');
-  ReadLn;
 end.

@@ -1,0 +1,6 @@
+procedure test begin
+  switch (local_var(0)) begin
+    default:
+      break;
+  end;
+end.
